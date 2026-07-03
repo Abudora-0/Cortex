@@ -1,0 +1,330 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Ink & paper — warm, print-like (dark-mode values in [data-mode] below) */
+  --color-ink: #1c1917;
+  --color-ink-soft: #57534e;
+  --color-ink-faint: #a8a29e;
+  --color-canvas: #faf7f2;
+  --color-paper: #ffffff;
+  --color-line: #e9e1d6;
+  --color-line-strong: #d8ccbb;
+
+  /* Sidebar — always dark; dedicated tokens so it never inverts in dark mode */
+  --color-sidebar: #1c1917;
+  --color-sidebar-fg: #faf7f2;
+
+  /* Signature accent — default UET garnet. [data-theme] blocks below override
+     these same variables directly (higher specificity) to swap the accent
+     app-wide. The "garnet" name is kept internally to avoid renaming utilities. */
+  --color-garnet-50: #fdf2f5;
+  --color-garnet-100: #fbe3e9;
+  --color-garnet-200: #f6c3d0;
+  --color-garnet-300: #ee94aa;
+  --color-garnet-400: #d95a7c;
+  --color-garnet-500: #b93359;
+  --color-garnet-600: #9b2242;
+  --color-garnet-700: #821c39;
+  --color-garnet-800: #6d1a33;
+  --color-garnet-900: #5d192f;
+
+  /* Support accent — brass (constant across themes) */
+  --color-brass-100: #fdf3e0;
+  --color-brass-300: #f2cf8a;
+  --color-brass-500: #e8a33d;
+  --color-brass-700: #a86a14;
+
+  /* Semantic (data-viz only) */
+  --color-pass: #3e7c4f;
+  --color-pass-soft: #e3efe6;
+  --color-warn: #c98212;
+  --color-warn-soft: #faf0da;
+  --color-fail: #b3402e;
+  --color-fail-soft: #f8e6e2;
+
+  --radius-card: 0.875rem;
+
+  --shadow-lift: 0 1px 2px 0 rgba(28, 25, 23, 0.04);
+  --shadow-raise: 0 4px 20px -6px rgba(28, 25, 23, 0.12), 0 1px 2px 0 rgba(28, 25, 23, 0.05);
+  --shadow-pop: 0 18px 50px -12px rgba(28, 25, 23, 0.28);
+
+  --ease-out-soft: cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+
+/* ---------- Themes: override the accent scale directly ---------- */
+
+:root {
+  --accent-tint: 155 34 66; /* rgb of the 600 shade, for soft washes */
+}
+/* !important is needed to win over Tailwind v4's own :root theme declarations. */
+:root[data-theme="indigo"] {
+  --color-garnet-50: #eef2ff !important;  --color-garnet-100: #e0e7ff !important; --color-garnet-200: #c7d2fe !important;
+  --color-garnet-300: #a5b4fc !important; --color-garnet-400: #818cf8 !important; --color-garnet-500: #6366f1 !important;
+  --color-garnet-600: #4f46e5 !important; --color-garnet-700: #4338ca !important; --color-garnet-800: #3730a3 !important;
+  --color-garnet-900: #312e81 !important; --accent-tint: 79 70 229;
+}
+:root[data-theme="emerald"] {
+  --color-garnet-50: #ecfdf5 !important;  --color-garnet-100: #d1fae5 !important; --color-garnet-200: #a7f3d0 !important;
+  --color-garnet-300: #6ee7b7 !important; --color-garnet-400: #34d399 !important; --color-garnet-500: #059669 !important;
+  --color-garnet-600: #047857 !important; --color-garnet-700: #065f46 !important; --color-garnet-800: #064e3b !important;
+  --color-garnet-900: #052e23 !important; --accent-tint: 4 120 87;
+}
+:root[data-theme="ochre"] {
+  --color-garnet-50: #fffbeb !important;  --color-garnet-100: #fef3c7 !important; --color-garnet-200: #fde68a !important;
+  --color-garnet-300: #fcd34d !important; --color-garnet-400: #f59e0b !important; --color-garnet-500: #d97706 !important;
+  --color-garnet-600: #b45309 !important; --color-garnet-700: #92400e !important; --color-garnet-800: #78350f !important;
+  --color-garnet-900: #5c290c !important; --accent-tint: 180 83 9;
+}
+:root[data-theme="violet"] {
+  --color-garnet-50: #f5f3ff !important;  --color-garnet-100: #ede9fe !important; --color-garnet-200: #ddd6fe !important;
+  --color-garnet-300: #c4b5fd !important; --color-garnet-400: #a78bfa !important; --color-garnet-500: #8b5cf6 !important;
+  --color-garnet-600: #7c3aed !important; --color-garnet-700: #6d28d9 !important; --color-garnet-800: #5b21b6 !important;
+  --color-garnet-900: #4c1d95 !important; --accent-tint: 124 58 237;
+}
+:root[data-theme="teal"] {
+  --color-garnet-50: #f0fdfa !important;  --color-garnet-100: #ccfbf1 !important; --color-garnet-200: #99f6e4 !important;
+  --color-garnet-300: #5eead4 !important; --color-garnet-400: #2dd4bf !important; --color-garnet-500: #0d9488 !important;
+  --color-garnet-600: #0f766e !important; --color-garnet-700: #115e59 !important; --color-garnet-800: #134e4a !important;
+  --color-garnet-900: #103e3b !important; --accent-tint: 15 118 110;
+}
+
+/* ---------- Dark mode: flip the neutral tokens (accent still applies) ---------- */
+
+:root[data-mode="dark"] {
+  --color-ink: #f2ece1 !important;
+  --color-ink-soft: #b3a996 !important;
+  --color-ink-faint: #7c7462 !important;
+  --color-canvas: #17140e !important;
+  --color-paper: #201c15 !important;
+  --color-line: #322c22 !important;
+  --color-line-strong: #453d30 !important;
+  --color-sidebar: #100d08 !important;
+  --color-sidebar-fg: #f2ece1 !important;
+
+  /* Semantic tints re-tuned for dark surfaces */
+  --color-pass: #6dbe84 !important;
+  --color-pass-soft: #1e2c22 !important;
+  --color-warn: #e0a63a !important;
+  --color-warn-soft: #2d2513 !important;
+  --color-fail: #e0745f !important;
+  --color-fail-soft: #2d1c18 !important;
+
+  color-scheme: dark;
+}
+
+/* Grain flips to faint light dots on the dark canvas */
+:root[data-mode="dark"] .canvas-grain {
+  background-image: radial-gradient(rgba(255, 250, 240, 0.03) 1px, transparent 1px);
+}
+
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+}
+
+/* Smooth the switch between light and dark */
+body,
+.rounded-card,
+aside {
+  transition: background-color 0.3s var(--ease-out-soft), border-color 0.3s var(--ease-out-soft),
+    color 0.3s var(--ease-out-soft);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv01";
+}
+
+/* Display numerals — big GPA/stat figures */
+.stat-figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+::selection {
+  background: var(--color-garnet-200);
+  color: var(--color-ink);
+}
+
+/* Accent-tinted focus ring used across interactive elements */
+.ring-accent:focus-visible {
+  outline: 2px solid rgb(var(--accent-tint) / 0.55);
+  outline-offset: 2px;
+}
+
+/* ---------- Textures ---------- */
+
+/* Paper-grain texture for the canvas, extremely subtle */
+.canvas-grain {
+  background-image: radial-gradient(rgba(28, 25, 23, 0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Faint accent aura behind the app shell */
+.app-aura {
+  background:
+    radial-gradient(60rem 30rem at 100% -10%, rgb(var(--accent-tint) / 0.06), transparent 60%),
+    radial-gradient(50rem 26rem at -10% 0%, rgb(var(--accent-tint) / 0.05), transparent 55%);
+}
+
+/* ---------- Custom controls ---------- */
+
+/* Chevron for native selects (no external icon needed) */
+.select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2357534e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1rem;
+  padding-right: 2.1rem;
+}
+
+/* Range slider — themed track + thumb */
+input[type="range"].u-range {
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-garnet-500) 0%,
+    var(--color-garnet-500) var(--fill, 0%),
+    var(--color-line) var(--fill, 0%),
+    var(--color-line) 100%
+  );
+}
+input[type="range"].u-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-paper);
+  border: 2px solid var(--color-garnet-600);
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.25);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out-soft);
+}
+input[type="range"].u-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* ---------- Animations (reduced-motion safe) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.96); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes sweep {
+    to { transform: translateX(100%); }
+  }
+
+  .rise {
+    animation: rise 0.55s var(--ease-out-soft) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .fade-in {
+    animation: fade 0.5s ease both;
+    animation-delay: var(--d, 0ms);
+  }
+  .pop-in {
+    animation: pop-in 0.35s var(--ease-out-soft) both;
+  }
+
+  /* Shimmer used on skeletons / gauges while data lands */
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    animation: sweep 1.4s infinite;
+  }
+}
+
+/* ---------- Tiptap note editor typography ---------- */
+.prose-note h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem;
+}
+.prose-note h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0.9rem 0 0.4rem;
+}
+.prose-note h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0.8rem 0 0.3rem;
+}
+.prose-note p {
+  margin: 0.4rem 0;
+}
+.prose-note ul,
+.prose-note ol {
+  padding-left: 1.4rem;
+  margin: 0.4rem 0;
+}
+.prose-note ul {
+  list-style: disc;
+}
+.prose-note ol {
+  list-style: decimal;
+}
+.prose-note blockquote {
+  border-left: 3px solid var(--color-garnet-300);
+  padding-left: 0.9rem;
+  color: var(--color-ink-soft);
+  margin: 0.6rem 0;
+}
+.prose-note code {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.prose-note pre {
+  background: var(--color-ink);
+  color: var(--color-canvas);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 0.6rem 0;
+  overflow-x: auto;
+}
+.prose-note pre code {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+}
+.prose-note hr {
+  border: none;
+  border-top: 1px solid var(--color-line-strong);
+  margin: 1rem 0;
+}

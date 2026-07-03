@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------- Auth.js ----------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  lmsCredential LmsCredential?
+  semesters     Semester[]
+  gradeSchemes  GradeScheme[]
+  announcements Announcement[]
+  notes         Note[]
+  tasks         Task[]
+  events        ScheduleEvent[]
+  syncJobs      SyncJob[]
+
+  driveRootFolderId String?
+
+  // Synced from the UET LMS student profile (obe.core.student)
+  lmsRoll        String?
+  lmsProgram     String?
+  lmsSemesterSeq Int?
+  lmsDepartment  String?
+
+  // Secret used by the browser bookmarklet to POST LMS data to /api/lms/ingest
+  syncToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Academics ----------
+
+model Semester {
+  id      String   @id @default(cuid())
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name    String
+  order   Int
+  courses Course[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, order])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  semesterId  String
+  semester    Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  title       String
+  code        String?
+  creditHours Float    @default(3)
+  // "MANUAL" | "LMS" — LMS-synced courses are upserted by the sync;
+  // manual ones are never touched by it.
+  source      String   @default("MANUAL")
+  lmsCourseId String?
+
+  // For LMS courses the university grades RELATIVELY (e.g. 56% can be an A),
+  // so the official grade/GP is stored verbatim and used directly for GPA —
+  // never recomputed from lmsPercent. Null for manual courses.
+  lmsPercent      Float?
+  lmsGrade        String?
+  lmsGradePoints  Float?
+  lmsStatus       String? // "Confirmed" | "Provisional"
+
+  assessments Assessment[]
+  attendance  AttendanceRecord[]
+  gradeScheme GradeScheme?
+  notes       Note[]
+  tasks       Task[]
+  events      ScheduleEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Assessment {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title    String
+  // "QUIZ" | "ASSIGNMENT" | "MID" | "FINAL" | "LAB" | "PROJECT" | "OTHER"
+  type     String @default("OTHER")
+  obtained Float?
+  total    Float
+  // Percentage weight toward the course grade; weights within a course
+  // should sum to <= 100. Null = unweighted (course uses raw mark totals).
+  weight   Float?
+  source   String @default("MANUAL")
+  dueAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GradeScheme {
+  id     String  @id @default(cuid())
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Null courseId = the user's default scheme applied to all their courses.
+  courseId String? @unique
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name     String  @default("Custom")
+  // JSON array (SQLite has no Json type): [{"letter":"A","minPercent":85,"gradePoints":4}]
+  boundaries String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AttendanceRecord {
+  id       String @id @default(cuid())
+  courseId String @unique
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  held     Int    @default(0)
+  attended Int    @default(0)
+
+  updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String?
+  title    String
+  body     String?
+  postedAt DateTime @default(now())
+  // Dedupe key from the LMS so re-syncs don't duplicate announcements.
+  lmsKey   String?
+
+  @@unique([userId, lmsKey])
+}
+
+// ---------- Personal ----------
+
+model Note {
+  id       String  @id @default(cuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  title    String
+  // Tiptap document JSON, stringified.
+  body     String  @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id       String    @id @default(cuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String?
+  course   Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  title    String
+  dueAt    DateTime?
+  done     Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model ScheduleEvent {
+  id       String  @id @default(cuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  title    String
+  // 0 = Monday … 6 = Sunday
+  dayOfWeek Int
+  // Minutes from midnight, e.g. 8:30 AM = 510
+  startMin  Int
+  endMin    Int
+  location  String?
+}
+
+// ---------- LMS sync ----------
+
+model LmsCredential {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lmsUsername String
+  // AES-256-GCM: hex(iv):hex(authTag):hex(ciphertext) — see src/lib/crypto.ts
+  encryptedPassword String
+  lastSyncAt DateTime?
+  // "IDLE" | "SYNCING" | "ERROR"
+  syncStatus String  @default("IDLE")
+  syncError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SyncJob {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // "PENDING" | "RUNNING" | "DONE" | "FAILED"
+  status String @default("PENDING")
+  error  String?
+
+  createdAt  DateTime  @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@index([status, createdAt])
+}
