@@ -35,7 +35,7 @@ export function Sidebar({ footer }: { footer?: React.ReactNode }) {
       <Link
         href="/"
         className="flex h-16 items-center gap-2.5 border-b border-white/10 px-3.5 lg:px-4"
-        aria-label="UniHub home"
+        aria-label="Cortex home"
       >
         <Logo showWord={false} className="lg:hidden" />
         <span className="hidden lg:flex">

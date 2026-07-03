@@ -21,7 +21,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UniHub — your UET semester, in one place",
+  title: "Cortex — your UET semester, in one place",
   description:
     "LMS marks, GPA & CGPA, Google Drive files, notes and schedules for UET students.",
 };

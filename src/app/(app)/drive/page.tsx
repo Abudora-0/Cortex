@@ -44,7 +44,7 @@ export default async function DrivePage({
           Drive
         </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          Browse your university folder without leaving UniHub. Read-only.
+          Browse your university folder without leaving Cortex. Read-only.
         </p>
       </header>
 

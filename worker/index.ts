@@ -10,7 +10,7 @@ import { scrapeLms, LmsAuthError, LmsLayoutError } from "./lms-scraper";
 import { applyScrapeResult } from "./sync";
 
 // ---------------------------------------------------------------------------
-// UniHub sync worker — polls the SyncJob table and runs the Playwright
+// Cortex sync worker — polls the SyncJob table and runs the Playwright
 // scraper for each queued job. Run alongside the web app:  npm run worker
 // Playwright browsers must be installed once:  npx playwright install chromium
 // ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ async function tick() {
 }
 
 async function main() {
-  console.log(`[worker] UniHub sync worker started — polling every ${POLL_MS / 1000}s`);
+  console.log(`[worker] Cortex sync worker started — polling every ${POLL_MS / 1000}s`);
   // Re-queue jobs that were mid-flight when the worker last stopped.
   await prisma.syncJob.updateMany({
     where: { status: "RUNNING" },

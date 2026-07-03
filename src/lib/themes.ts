@@ -15,8 +15,8 @@ export const THEMES: ThemeDef[] = [
 ];
 
 export const DEFAULT_THEME = "garnet";
-export const THEME_KEY = "unihub-theme";
+export const THEME_KEY = "cortex-theme";
 
-export const MODE_KEY = "unihub-mode";
+export const MODE_KEY = "cortex-mode";
 export type Mode = "light" | "dark";
 export const DEFAULT_MODE: Mode = "light";

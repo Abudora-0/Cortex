@@ -1,4 +1,4 @@
-# UniHub
+# Cortex
 
 One place for a UET student's semester: LMS marks & announcements, GPA/CGPA with
 a what-if lab, your uni Google Drive folder, notes, and a weekly schedule.

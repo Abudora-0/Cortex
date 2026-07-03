@@ -1,6 +1,6 @@
-# Deploying UniHub to Vercel
+# Deploying Cortex to Vercel
 
-UniHub is a normal Next.js app, so hosting it on Vercel is straightforward. Two
+Cortex is a normal Next.js app, so hosting it on Vercel is straightforward. Two
 things differ from local dev:
 
 1. **Database:** local uses SQLite; production uses **Postgres (Neon)**. The app
@@ -33,8 +33,8 @@ In [Google Cloud Console](https://console.cloud.google.com) → your project →
 ## 3. Push to GitHub
 
 ```bash
-git init && git add -A && git commit -m "UniHub"
-gh repo create unihub --private --source=. --push   # or push to a repo you made
+git init && git add -A && git commit -m "Cortex"
+gh repo create cortex --private --source=. --push   # or push to a repo you made
 ```
 
 `.env`, `.env.local` and `.lms-session.json` are gitignored — secrets won't leak.
@@ -73,12 +73,12 @@ They sign in with Google, then sync their LMS marks via the bookmarklet.
 ## How LMS sync works for deployed users
 
 Because the UET LMS login has a reCAPTCHA, sync can't run on the server. Instead,
-each user installs a one-time **bookmarklet** (Settings → UET LMS → drag *UniHub
+each user installs a one-time **bookmarklet** (Settings → UET LMS → drag *Cortex
 Sync* to the bookmarks bar). Then:
 
 1. Open `lms.uet.edu.pk` and log in normally (solving the captcha themselves).
-2. Click the **UniHub Sync** bookmark. It reads their results via the LMS's own
-   API (using the session already in their browser) and posts them to UniHub with
+2. Click the **Cortex Sync** bookmark. It reads their results via the LMS's own
+   API (using the session already in their browser) and posts them to Cortex with
    a personal token. A confirmation pop-up appears.
 
 No LMS passwords are stored anywhere — the sync rides the user's existing login.

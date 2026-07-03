@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * UniHub logomark — an open book with a bookmark ribbon. Single-colour
+ * Cortex logomark — an open book with a bookmark ribbon. Single-colour
  * (currentColor) with opacity for depth so it also works as a favicon.
  */
 export function LogoMark({
@@ -61,7 +61,7 @@ export function Logo({
         <LogoMark size={19} />
       </span>
       {showWord ? (
-        <span className="font-display text-lg font-bold tracking-tight">UniHub</span>
+        <span className="font-display text-lg font-bold tracking-tight">Cortex</span>
       ) : null}
     </span>
   );

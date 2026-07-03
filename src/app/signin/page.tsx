@@ -159,7 +159,7 @@ export default async function SignInPage() {
                     <Input id="name" name="name" placeholder="Your name" />
                   </Field>
                   <Button type="submit" className="w-full">
-                    Enter UniHub
+                    Enter Cortex
                   </Button>
                   <p className="text-center text-[11px] text-ink-faint">
                     Dev-only login — disabled in production builds.
@@ -170,7 +170,7 @@ export default async function SignInPage() {
           </div>
 
           <p className="mt-8 text-center text-[11px] leading-relaxed text-ink-faint">
-            By continuing you agree that UniHub reads your UET data only to show it back
+            By continuing you agree that Cortex reads your UET data only to show it back
             to you.
           </p>
         </div>
