@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, RefreshCw, Check } from "lucide-react";
+import { Bookmark, RefreshCw, Check, Copy } from "lucide-react";
 import { ensureSyncToken, regenerateSyncToken } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +23,19 @@ export function BookmarkletCard() {
   const [token, setToken] = useState<string | null>(null);
   const [appUrl, setAppUrl] = useState("");
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
+
+  const copyBookmarklet = async () => {
+    if (!token || !appUrl) return;
+    try {
+      await navigator.clipboard.writeText(buildBookmarklet(appUrl, token));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard blocked — user can still drag the button */
+    }
+  };
 
   useEffect(() => {
     setAppUrl(window.location.origin);
@@ -60,7 +72,22 @@ export function BookmarkletCard() {
           <span className="text-xs text-ink-faint">Preparing your bookmarklet…</span>
         )}
         <span className="text-xs text-ink-faint">← drag to your bookmarks bar</span>
+        {token ? (
+          <button
+            onClick={copyBookmarklet}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-line-strong bg-paper px-2.5 py-1.5 text-xs font-medium text-ink transition-colors hover:border-ink hover:bg-canvas"
+          >
+            {copied ? <Check size={13} className="text-pass" /> : <Copy size={13} />}
+            {copied ? "Copied" : "Copy link"}
+          </button>
+        ) : null}
       </div>
+
+      <p className="text-[11px] leading-relaxed text-ink-faint">
+        On a phone (no bookmarks bar)? Tap <b>Copy link</b>, then create a new bookmark
+        and paste it as the bookmark&apos;s <b>URL/address</b>. Works on iPhone Safari
+        and Firefox for Android.
+      </p>
 
       <ol className="ml-4 list-decimal space-y-1 text-xs leading-relaxed text-ink-soft">
         <li>Drag the button above onto your browser&apos;s bookmarks bar.</li>
