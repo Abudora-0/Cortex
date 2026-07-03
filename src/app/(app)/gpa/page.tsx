@@ -9,13 +9,14 @@ export default async function GpaLabPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <header className="mb-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
+      <header className="mb-6">
+        <p className="eyebrow">Model your grades</p>
+        <h1 className="font-display text-[2rem] font-bold leading-tight tracking-tight text-ink">
           GPA Lab
         </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          What-if calculator — drag any course to a hypothetical mark and watch your
-          CGPA respond.
+          Drag ungraded courses to test marks, or plan future courses to project your
+          CGPA forward.
         </p>
       </header>
 
