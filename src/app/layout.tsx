@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/session-provider";
 import { THEME_KEY, THEMES, DEFAULT_THEME, MODE_KEY, DEFAULT_MODE } from "@/lib/themes";
@@ -13,6 +13,12 @@ const bricolage = Bricolage_Grotesque({
 const instrument = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-instrument",
+});
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
 });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
@@ -43,7 +49,7 @@ export default async function RootLayout({
       lang="en"
       data-theme={theme}
       data-mode={mode}
-      className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${instrument.variable} ${instrumentSerif.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="canvas-grain min-h-screen">
         <SessionProvider>{children}</SessionProvider>
