@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { getDashboardData, type CourseComputed } from "@/lib/queries";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -19,7 +20,7 @@ import { CountUp } from "@/components/widgets/count-up";
 import { GpaTrajectory } from "@/components/widgets/gpa-trajectory";
 import { GradeBars } from "@/components/widgets/grade-bars";
 import { ProgressRing } from "@/components/widgets/progress-ring";
-import { formatDate, minutesToLabel } from "@/lib/utils";
+import { cn, formatDate, minutesToLabel } from "@/lib/utils";
 
 // Typical UET BSc degree length (credit hours) - used only for the progress ring.
 const DEGREE_CREDITS = 133;
@@ -80,6 +81,30 @@ export default async function DashboardPage() {
   const focus = sortedByGp.length > 1 ? sortedByGp[sortedByGp.length - 1] : undefined;
 
   const hasData = data.cgpa != null;
+
+  // Attendance summary (only courses with logged classes)
+  const attRecords = await prisma.attendanceRecord.findMany({
+    where: { held: { gt: 0 }, course: { semester: { userId: user.id } } },
+    include: { course: { select: { id: true, code: true, title: true } } },
+  });
+  const attendance = attRecords
+    .map((r) => ({
+      id: r.course.id,
+      label: r.course.code ?? r.course.title,
+      held: r.held,
+      attended: Math.min(r.attended, r.held),
+      pct: (Math.min(r.attended, r.held) / r.held) * 100,
+    }))
+    .sort((a, b) => a.pct - b.pct);
+  const attTotals = attendance.reduce(
+    (acc, a) => ({ held: acc.held + a.held, attended: acc.attended + a.attended }),
+    { held: 0, attended: 0 }
+  );
+  const attOverall = attTotals.held > 0 ? (attTotals.attended / attTotals.held) * 100 : null;
+  const attBelow = attendance.filter((a) => a.pct < 75).length;
+  const attTone = (pct: number) => (pct >= 80 ? "bg-pass" : pct >= 75 ? "bg-warn" : "bg-fail");
+  const attTextTone = (pct: number) =>
+    pct >= 80 ? "text-pass" : pct >= 75 ? "text-warn" : "text-fail";
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -237,6 +262,49 @@ export default async function DashboardPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* ---------- Attendance ---------- */}
+      {attendance.length > 0 ? (
+        <Card className="mb-5">
+          <CardHeader
+            title="Attendance"
+            hint={attBelow > 0 ? `${attBelow} below the 75% line` : "all above the 75% line"}
+            action={
+              attOverall != null ? (
+                <span className="flex items-baseline gap-1">
+                  <span className={cn("stat-figure text-xl font-bold", attTextTone(attOverall))}>
+                    {Math.round(attOverall)}%
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-ink-faint">overall</span>
+                </span>
+              ) : null
+            }
+          />
+          <CardBody className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+            {attendance.slice(0, 8).map((a) => (
+              <Link
+                key={a.id}
+                href={`/courses/${a.id}`}
+                className="group flex items-center gap-3"
+              >
+                <span className="w-16 shrink-0 truncate text-xs font-medium text-ink group-hover:text-garnet-600">
+                  {a.label}
+                </span>
+                <span className="relative h-2 flex-1 overflow-hidden rounded-full bg-line/70">
+                  <span
+                    className={cn("absolute inset-y-0 left-0 rounded-full", attTone(a.pct))}
+                    style={{ width: `${a.pct}%` }}
+                  />
+                  <span className="absolute inset-y-0 w-px bg-ink/30" style={{ left: "75%" }} />
+                </span>
+                <span className={cn("stat-figure w-9 shrink-0 text-right text-xs font-bold", attTextTone(a.pct))}>
+                  {Math.round(a.pct)}%
+                </span>
+              </Link>
+            ))}
+          </CardBody>
+        </Card>
+      ) : null}
 
       {/* ---------- Main split ---------- */}
       <div className="grid gap-5 xl:grid-cols-3">
