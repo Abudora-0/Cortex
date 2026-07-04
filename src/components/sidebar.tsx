@@ -112,7 +112,7 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Collapse toggle — desktop only */}
+      {/* Collapse toggle - desktop only */}
       <div className="hidden px-2 pb-1 lg:block lg:px-3">
         <button
           onClick={toggle}
@@ -130,7 +130,7 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* Theme controls — hidden when collapsed */}
+      {/* Theme controls - hidden when collapsed */}
       <div className={cn("flex-col gap-2.5 border-t border-white/10 px-4 py-3", showFlex)}>
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-fg/40">

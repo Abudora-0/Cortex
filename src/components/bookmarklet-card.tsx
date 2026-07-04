@@ -33,7 +33,7 @@ export function BookmarkletCard() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* clipboard blocked — user can still drag the button */
+      /* clipboard blocked - user can still drag the button */
     }
   };
 
@@ -53,7 +53,7 @@ export function BookmarkletCard() {
   return (
     <div className="space-y-4">
       <p className="text-sm leading-relaxed text-ink-soft">
-        Works from any browser, even when the app is deployed — no password stored.
+        Works from any browser, even when the app is deployed - no password stored.
         Drag this button to your bookmarks bar:
       </p>
 
@@ -96,7 +96,7 @@ export function BookmarkletCard() {
           captcha as normal).
         </li>
         <li>
-          Click the <b>Cortex Sync</b> bookmark — it reads your results and sends them
+          Click the <b>Cortex Sync</b> bookmark - it reads your results and sends them
           here. You&apos;ll get a confirmation pop-up.
         </li>
       </ol>

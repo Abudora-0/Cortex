@@ -1,20 +1,14 @@
 import { redirect } from "next/navigation";
-import {
-  auth,
-  signIn,
-  googleAuthEnabled,
-  devLoginAuthEnabled,
-} from "@/lib/auth";
+import { auth, signIn, googleAuthEnabled } from "@/lib/auth";
 import { GraduationCap, FolderOpen, SlidersHorizontal, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/input";
 import { Logo, LogoMark } from "@/components/logo";
 
 const HIGHLIGHTS = [
   {
     icon: GraduationCap,
     title: "Live GPA & CGPA",
-    body: "Your official OBE results, pulled in and totalled the way UET grades — relatively.",
+    body: "Your official OBE results, pulled in and totalled the way UET grades - relatively.",
   },
   {
     icon: SlidersHorizontal,
@@ -32,6 +26,8 @@ const HIGHLIGHTS = [
     body: "Lecture notes, a weekly schedule and a to-do list, all in one place.",
   },
 ];
+
+export const metadata = { title: "Sign in" };
 
 export default async function SignInPage() {
   const session = await auth();
@@ -62,7 +58,7 @@ export default async function SignInPage() {
               Your whole UET semester, in one place.
             </h1>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-sidebar-fg/60">
-              Marks, GPA, Drive files, notes and schedule — stitched together into one
+              Marks, GPA, Drive files, notes and schedule - stitched together into one
               calm, fast workspace built for UET students.
             </p>
 
@@ -119,52 +115,10 @@ export default async function SignInPage() {
               </form>
             ) : (
               <p className="rounded-lg border border-warn/25 bg-warn-soft px-3 py-2 text-xs text-warn">
-                Google sign-in isn&apos;t configured — set AUTH_GOOGLE_ID and
+                Google sign-in isn&apos;t configured - set AUTH_GOOGLE_ID and
                 AUTH_GOOGLE_SECRET in .env to enable it.
               </p>
             )}
-
-            {devLoginAuthEnabled ? (
-              <>
-                {googleAuthEnabled ? (
-                  <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
-                    <span className="h-px flex-1 bg-line" />
-                    or dev login
-                    <span className="h-px flex-1 bg-line" />
-                  </div>
-                ) : null}
-                <form
-                  className="space-y-4"
-                  action={async (formData: FormData) => {
-                    "use server";
-                    await signIn("devlogin", {
-                      email: String(formData.get("email") ?? ""),
-                      name: String(formData.get("name") ?? ""),
-                      redirectTo: "/",
-                    });
-                  }}
-                >
-                  <Field label="Email" htmlFor="email">
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      placeholder="you@student.uet.edu.pk"
-                    />
-                  </Field>
-                  <Field label="Name" htmlFor="name">
-                    <Input id="name" name="name" placeholder="Your name" />
-                  </Field>
-                  <Button type="submit" className="w-full">
-                    Enter Cortex
-                  </Button>
-                  <p className="text-center text-[11px] text-ink-faint">
-                    Dev-only login — disabled in production builds.
-                  </p>
-                </form>
-              </>
-            ) : null}
           </div>
 
           <p className="mt-8 text-center text-[11px] leading-relaxed text-ink-faint">

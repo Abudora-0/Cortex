@@ -7,7 +7,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 
 const hasGoogle = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
-// Dev-login is a local-development convenience only — never surfaced in prod.
+// Dev-login is a local-development convenience only - never surfaced in prod.
 const devLoginEnabled = process.env.NODE_ENV === "development";
 
 const providers: NextAuthConfig["providers"] = [];
@@ -19,7 +19,7 @@ if (hasGoogle) {
     Google({
       // Request the Drive read-only scope up front alongside offline access.
       // (Passing the scope only from the client "Connect Drive" button proved
-      // unreliable in Auth.js v5 — it was dropped from the auth URL — so we
+      // unreliable in Auth.js v5 - it was dropped from the auth URL - so we
       // request it at the provider level and force re-consent.)
       authorization: {
         params: {
@@ -107,7 +107,7 @@ export const devLoginAuthEnabled = devLoginEnabled;
 
 /**
  * Page-level guard. Layouts and pages render in parallel in the App Router,
- * so the (app) layout's redirect does NOT stop a page from executing —
+ * so the (app) layout's redirect does NOT stop a page from executing -
  * every authenticated page must call this itself.
  */
 export async function requireUser() {

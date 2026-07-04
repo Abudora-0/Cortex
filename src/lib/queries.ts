@@ -73,7 +73,7 @@ export async function getAcademics(userId: string) {
         ? parseScheme(c.gradeScheme.boundaries)
         : userDefault;
 
-      // LMS courses carry the university's official (relative) grade — use it
+      // LMS courses carry the university's official (relative) grade - use it
       // verbatim, never recompute from the raw percentage.
       if (c.source === "LMS" && c.lmsGradePoints != null) {
         return {

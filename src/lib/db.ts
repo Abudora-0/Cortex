@@ -7,8 +7,8 @@ import { PrismaClient } from "@/generated/prisma/client";
 //   • anything else / file:         → local SQLite (zero-config dev)
 // The Prisma schema `provider` is swapped to match at build time by
 // scripts/prepare-db.mjs (see DEPLOY.md). Locally nothing needs configuring.
-// A conditional require (not a static import) keeps the unused driver — and
-// better-sqlite3's native binding — out of the production bundle.
+// A conditional require (not a static import) keeps the unused driver - and
+// better-sqlite3's native binding - out of the production bundle.
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 const require = createRequire(import.meta.url);
 

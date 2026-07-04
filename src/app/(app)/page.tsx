@@ -21,7 +21,7 @@ import { GradeBars } from "@/components/widgets/grade-bars";
 import { ProgressRing } from "@/components/widgets/progress-ring";
 import { formatDate, minutesToLabel } from "@/lib/utils";
 
-// Typical UET BSc degree length (credit hours) — used only for the progress ring.
+// Typical UET BSc degree length (credit hours) - used only for the progress ring.
 const DEGREE_CREDITS = 133;
 const GRADE_ORDER = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"];
 
@@ -36,6 +36,8 @@ function shortSem(name: string) {
   const m = name.match(/(Fall|Spring|Summer|Winter)\s+(\d{4})/i);
   return m ? `${m[1][0].toUpperCase()}${m[2].slice(2)}` : name.slice(0, 4);
 }
+
+export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -99,7 +101,7 @@ export default async function DashboardPage() {
           ) : (
             <p className="mt-1 text-sm text-ink-soft">
               {currentSemester
-                ? `${currentSemester.name} — ${currentSemester.courses.length} course${currentSemester.courses.length === 1 ? "" : "s"} on the books.`
+                ? `${currentSemester.name} - ${currentSemester.courses.length} course${currentSemester.courses.length === 1 ? "" : "s"} on the books.`
                 : "Set up your first semester to start tracking."}
             </p>
           )}
@@ -121,7 +123,7 @@ export default async function DashboardPage() {
             <p className="eyebrow">Cumulative GPA</p>
             <div className="mt-1 flex items-end gap-2">
               <span className="stat-figure text-[3.75rem] font-bold leading-none text-garnet-600">
-                {hasData ? <CountUp value={data.cgpa as number} decimals={2} /> : "—"}
+                {hasData ? <CountUp value={data.cgpa as number} decimals={2} /> : "-"}
               </span>
               <span className="stat-figure mb-2 text-lg font-medium text-ink-faint">/ 4.00</span>
             </div>
@@ -154,7 +156,7 @@ export default async function DashboardPage() {
               </div>
               <div>
                 <p className="stat-figure text-xl font-bold text-ink">
-                  {currentSemester?.gpa != null ? currentSemester.gpa.toFixed(2) : "—"}
+                  {currentSemester?.gpa != null ? currentSemester.gpa.toFixed(2) : "-"}
                 </p>
                 <p className="text-[11px] uppercase tracking-widest text-ink-faint">This sem</p>
               </div>
@@ -262,7 +264,7 @@ export default async function DashboardPage() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-ink">{e.title}</p>
                         <p className="text-[11px] text-ink-faint">
-                          {[e.course?.code, e.location].filter(Boolean).join(" · ") || "—"}
+                          {[e.course?.code, e.location].filter(Boolean).join(" · ") || "-"}
                         </p>
                       </div>
                     </li>
@@ -288,7 +290,7 @@ export default async function DashboardPage() {
                   className="m-5"
                   icon={<GraduationCap size={22} />}
                   title="No deadlines on the radar"
-                  hint="Assessments with a due date show up here — add them from a course page."
+                  hint="Assessments with a due date show up here - add them from a course page."
                 />
               ) : (
                 <Table>
@@ -343,7 +345,7 @@ export default async function DashboardPage() {
             />
             <CardBody className="p-0">
               {data.recentNotes.length === 0 ? (
-                <p className="px-5 py-6 text-center text-xs text-ink-faint">No notes yet — start one from the Notes page.</p>
+                <p className="px-5 py-6 text-center text-xs text-ink-faint">No notes yet - start one from the Notes page.</p>
               ) : (
                 <ul>
                   {data.recentNotes.map((n) => (

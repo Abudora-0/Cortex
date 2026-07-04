@@ -16,7 +16,7 @@ const bodySchema = z.object({
   snapshot: lmsSnapshotSchema,
 });
 
-const MAX_BYTES = 256 * 1024; // 256 KB — a snapshot is a few KB
+const MAX_BYTES = 256 * 1024; // 256 KB - a snapshot is a few KB
 
 // Best-effort in-memory rate limit (per serverless instance). Enough to blunt
 // abuse on a small deployment; a hosted store isn't warranted here.
@@ -76,15 +76,15 @@ export async function POST(req: Request) {
   });
   if (!user) {
     return NextResponse.json(
-      { ok: false, error: "Invalid sync token — copy a fresh bookmarklet from Settings." },
+      { ok: false, error: "Invalid sync token - copy a fresh bookmarklet from Settings." },
       { status: 401, headers: CORS }
     );
   }
 
-  // Per-token limit — syncing more than a few times a minute is pointless.
+  // Per-token limit - syncing more than a few times a minute is pointless.
   if (rateLimited(`tok:${token}`, 10, 60_000)) {
     return NextResponse.json(
-      { ok: false, error: "You're syncing too fast — wait a minute and try again." },
+      { ok: false, error: "You're syncing too fast - wait a minute and try again." },
       { status: 429, headers: CORS }
     );
   }

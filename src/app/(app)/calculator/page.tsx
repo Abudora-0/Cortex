@@ -3,6 +3,8 @@ import { getAcademics } from "@/lib/queries";
 import { GpaCalculator, type MyCourse } from "@/components/gpa-calculator";
 import { AimCalculator } from "@/components/aim-calculator";
 
+export const metadata = { title: "Calculator" };
+
 export default async function CalculatorPage() {
   const { id: userId } = await requireUser();
   const { semesters, cgpa, totalCredits } = await getAcademics(userId);

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Cortex logomark — an open book with a bookmark ribbon. Single-colour
+ * Cortex logomark - an open book with a bookmark ribbon. Single-colour
  * (currentColor) with opacity for depth so it also works as a favicon.
  */
 export function LogoMark({

@@ -27,7 +27,10 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cortex — your UET semester, in one place",
+  title: {
+    default: "Cortex",
+    template: "%s · Cortex",
+  },
   description:
     "LMS marks, GPA & CGPA, Google Drive files, notes and schedules for UET students.",
 };
@@ -37,7 +40,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Theme is stored in a cookie so we can set data-theme during SSR — no
+  // Theme is stored in a cookie so we can set data-theme during SSR - no
   // client script, no flash of the wrong accent.
   const jar = await cookies();
   const cookieTheme = jar.get(THEME_KEY)?.value;

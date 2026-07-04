@@ -158,7 +158,7 @@ export function GpaCalculator({
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="flex items-baseline gap-1">
                     <span className="stat-figure text-lg font-bold leading-none text-garnet-600">
-                      {gpa != null ? gpa.toFixed(2) : "—"}
+                      {gpa != null ? gpa.toFixed(2) : "-"}
                     </span>
                     <span className="text-[10px] uppercase tracking-widest text-ink-faint">GPA</span>
                   </span>
@@ -255,14 +255,14 @@ export function GpaCalculator({
         </div>
       </div>
 
-      {/* Result + blend + scale — the whole rail sticks together */}
+      {/* Result + blend + scale - the whole rail sticks together */}
       <div className="lg:col-span-1">
         <div className="space-y-5 lg:sticky lg:top-8">
           <Card className="overflow-hidden">
             <div className="app-aura border-b border-line px-5 py-6 text-center">
               <p className="eyebrow">{headlineLabel}</p>
               <p className="stat-figure mt-1 text-6xl font-bold text-garnet-600">
-                {headline != null ? headline.toFixed(2) : "—"}
+                {headline != null ? headline.toFixed(2) : "-"}
               </p>
               {combined ? (
                 <p
@@ -274,7 +274,7 @@ export function GpaCalculator({
                   {combined.delta >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
                   {combined.delta >= 0 ? "+" : ""}
                   {combined.delta.toFixed(2)} · {multi ? "combined" : "sem"} GPA{" "}
-                  {totals.gpa != null ? totals.gpa.toFixed(2) : "—"}
+                  {totals.gpa != null ? totals.gpa.toFixed(2) : "-"}
                 </p>
               ) : (
                 <p className="mt-1 text-xs text-ink-soft">
@@ -333,7 +333,7 @@ export function GpaCalculator({
 
             <CardBody className="flex items-center gap-2 text-xs text-ink-soft">
               <GraduationCap size={15} className="shrink-0 text-garnet-600" />
-              UET grades relatively — treat this as an estimate against known letter grades.
+              UET grades relatively - treat this as an estimate against known letter grades.
             </CardBody>
           </Card>
 

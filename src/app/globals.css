@@ -6,7 +6,7 @@
   --font-serif: var(--font-serif), ui-serif, Georgia, serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
-  /* Ink & paper — warm, print-like (dark-mode values in [data-mode] below) */
+  /* Ink & paper - warm, print-like (dark-mode values in [data-mode] below) */
   --color-ink: #1c1917;
   --color-ink-soft: #57534e;
   --color-ink-faint: #a8a29e;
@@ -15,11 +15,11 @@
   --color-line: #e9e1d6;
   --color-line-strong: #d8ccbb;
 
-  /* Sidebar — always dark; dedicated tokens so it never inverts in dark mode */
+  /* Sidebar - always dark; dedicated tokens so it never inverts in dark mode */
   --color-sidebar: #1c1917;
   --color-sidebar-fg: #faf7f2;
 
-  /* Signature accent — default UET garnet. [data-theme] blocks below override
+  /* Signature accent - default UET garnet. [data-theme] blocks below override
      these same variables directly (higher specificity) to swap the accent
      app-wide. The "garnet" name is kept internally to avoid renaming utilities. */
   --color-garnet-50: #fdf2f5;
@@ -33,7 +33,7 @@
   --color-garnet-800: #6d1a33;
   --color-garnet-900: #5d192f;
 
-  /* Support accent — brass (constant across themes) */
+  /* Support accent - brass (constant across themes) */
   --color-brass-100: #fdf3e0;
   --color-brass-300: #f2cf8a;
   --color-brass-500: #e8a33d;
@@ -148,14 +148,14 @@ body {
   font-feature-settings: "ss01", "cv01";
 }
 
-/* Display numerals — big GPA/stat figures */
+/* Display numerals - big GPA/stat figures */
 .stat-figure {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
 }
 
-/* Editorial serif accent — used for eyebrows and expressive labels */
+/* Editorial serif accent - used for eyebrows and expressive labels */
 .serif {
   font-family: var(--font-serif);
 }
@@ -205,7 +205,7 @@ body {
   padding-right: 2.1rem;
 }
 
-/* Range slider — themed track + thumb */
+/* Range slider - themed track + thumb */
 input[type="range"].u-range {
   appearance: none;
   height: 6px;

@@ -19,7 +19,7 @@ const STEPWISE: GradeSchemeSpec = {
   ],
 };
 
-describe("gradePointsFor — official UET default table", () => {
+describe("gradePointsFor - official UET default table", () => {
   it("matches the UG Semester Regulations 2016 grade points", () => {
     expect(gradePointsFor(92, UET_DEFAULT_SCHEME)).toBe(4); // A+
     expect(gradePointsFor(85, UET_DEFAULT_SCHEME)).toBe(4); // A

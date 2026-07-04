@@ -32,10 +32,10 @@ export function AimCalculator({
     result == null
       ? null
       : result.need > 4.0
-        ? { tone: "fail", text: "Out of reach — a 4.00 semester still falls short of this target." }
+        ? { tone: "fail", text: "Out of reach - a 4.00 semester still falls short of this target." }
         : result.need <= 0
-          ? { tone: "pass", text: "Already secured — even a 0.00 this semester keeps you above the target." }
-          : { tone: "ok", text: "Achievable — aim for this semester GPA or higher." };
+          ? { tone: "pass", text: "Already secured - even a 0.00 this semester keeps you above the target." }
+          : { tone: "ok", text: "Achievable - aim for this semester GPA or higher." };
 
   return (
     <Card>
@@ -67,7 +67,7 @@ export function AimCalculator({
             </p>
             <p className="stat-figure text-4xl font-bold text-garnet-600">
               {result == null
-                ? "—"
+                ? "-"
                 : result.need <= 0
                   ? "0.00"
                   : result.need > 4

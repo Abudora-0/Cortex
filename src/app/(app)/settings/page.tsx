@@ -42,6 +42,8 @@ function IconTitle({ icon: Icon, children }: { icon: typeof Info; children: Reac
   );
 }
 
+export const metadata = { title: "Settings" };
+
 export default async function SettingsPage() {
   const { id: userId } = await requireUser();
 
@@ -117,7 +119,7 @@ export default async function SettingsPage() {
             <Info size={15} className="mt-0.5 shrink-0 text-ink-faint" />
             <p className="text-xs leading-relaxed text-ink-soft">
               The LMS login has a reCAPTCHA, so it can&apos;t be automated. Use the
-              bookmarklet — it runs in your own browser (where you&apos;re logged in) and
+              bookmarklet - it runs in your own browser (where you&apos;re logged in) and
               sends your results here. UET grades relatively, so grades are stored exactly
               as awarded.
             </p>

@@ -37,7 +37,7 @@ export function TodoRail({ tasks }: { tasks: TaskItem[] }) {
 
       {tasks.length === 0 ? (
         <p className="px-5 py-6 text-center text-xs text-ink-faint">
-          Nothing pending — you&apos;re all caught up.
+          Nothing pending - you&apos;re all caught up.
         </p>
       ) : (
         <ul>

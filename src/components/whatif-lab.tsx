@@ -97,7 +97,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
                 title={sem.name}
                 action={
                   <span className="stat-figure text-lg font-bold text-garnet-600">
-                    {semGpa != null ? semGpa.toFixed(2) : "—"}
+                    {semGpa != null ? semGpa.toFixed(2) : "-"}
                   </span>
                 }
               />
@@ -116,7 +116,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
                           </p>
                           <div className="flex shrink-0 items-center gap-2">
                             <Chip tone={c.fixedGradePoints != null ? tierTone(c.fixedGradePoints) : "neutral"}>
-                              <span>{c.fixedLetter ?? "—"}</span>
+                              <span>{c.fixedLetter ?? "-"}</span>
                               {c.fixedGradePoints != null ? (
                                 <span className="font-normal opacity-70">{c.fixedGradePoints.toFixed(2)}</span>
                               ) : null}
@@ -156,7 +156,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
                                 overridden ? "text-brass-600" : "text-ink"
                               )}
                             >
-                              {val != null ? `${Math.round(val)}%` : "—"}
+                              {val != null ? `${Math.round(val)}%` : "-"}
                             </span>
                           </div>
                         </div>
@@ -179,7 +179,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
           );
         })}
 
-        {/* Plan ahead — the unique projector */}
+        {/* Plan ahead - the unique projector */}
         <Card interactive className="border-garnet-200">
           <CardHeader
             title="Plan ahead"
@@ -255,7 +255,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
               </>
             ) : (
               <p className="text-xs leading-relaxed text-ink-soft">
-                Since your synced courses are locked, this is where the lab shines — add the
+                Since your synced courses are locked, this is where the lab shines - add the
                 courses you&apos;ll take next term with target grades and see where your CGPA lands.
               </p>
             )}
@@ -286,17 +286,17 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
             <div>
               <p className="eyebrow">Projected CGPA</p>
               <p className="stat-figure text-[3.25rem] font-bold leading-none text-garnet-600">
-                {projected != null ? projected.toFixed(2) : "—"}
+                {projected != null ? projected.toFixed(2) : "-"}
               </p>
               {delta != null && Math.abs(delta) >= 0.005 ? (
                 <p className={cn("mt-2 inline-flex items-center gap-1 text-xs font-semibold", delta > 0 ? "text-pass" : "text-fail")}>
                   {delta > 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
                   {delta > 0 ? "+" : ""}
-                  {delta.toFixed(2)} from {actual != null ? actual.toFixed(2) : "—"}
+                  {delta.toFixed(2)} from {actual != null ? actual.toFixed(2) : "-"}
                 </p>
               ) : (
                 <p className="mt-2 text-xs text-ink-faint">
-                  current: {actual != null ? actual.toFixed(2) : "—"}
+                  current: {actual != null ? actual.toFixed(2) : "-"}
                 </p>
               )}
             </div>
@@ -308,7 +308,7 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
               </div>
               <div>
                 <p className="stat-figure text-xl font-bold text-ink">
-                  {plannedGpa != null ? plannedGpa.toFixed(2) : "—"}
+                  {plannedGpa != null ? plannedGpa.toFixed(2) : "-"}
                 </p>
                 <p className="text-[10px] uppercase tracking-widest text-ink-faint">Planned GPA</p>
               </div>

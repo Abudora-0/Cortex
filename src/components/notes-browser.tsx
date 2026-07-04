@@ -107,7 +107,7 @@ export function NotesBrowser({ notes, courses }: { notes: NoteCard[]; courses: C
                     {n.title}
                   </p>
                   <p className="mt-1.5 line-clamp-2 min-h-[2.5em] text-xs leading-relaxed text-ink-soft">
-                    {n.preview || "Empty note — open to start writing."}
+                    {n.preview || "Empty note - open to start writing."}
                   </p>
                   <div className="mt-3 flex items-center gap-2">
                     {n.courseLabel ? (

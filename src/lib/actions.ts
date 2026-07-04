@@ -307,7 +307,7 @@ export async function deleteNote(id: string) {
 }
 
 // ---------------------------------------------------------------------------
-// LMS sync (session-based — see src/lib/lms/)
+// LMS sync (session-based - see src/lib/lms/)
 // ---------------------------------------------------------------------------
 
 export interface LmsSyncResult {
@@ -344,7 +344,7 @@ export async function syncLmsResults(): Promise<LmsSyncResult> {
 }
 
 /**
- * Cheap session status for the Settings page — file presence only, no network
+ * Cheap session status for the Settings page - file presence only, no network
  * (validating against the LMS takes several seconds through Cloudflare). An
  * actually-expired session is reported by syncLmsResults() when you sync.
  */

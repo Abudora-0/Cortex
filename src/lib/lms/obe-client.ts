@@ -3,7 +3,7 @@ import path from "path";
 
 // Server-side Odoo (OBE) client. It reuses the session captured by
 // `npm run lms:connect` (.lms-session.json) and talks to Odoo's JSON-RPC
-// endpoint with a plain fetch — no browser needed once the session exists.
+// endpoint with a plain fetch - no browser needed once the session exists.
 // The UET LMS blocks automated *login* with a reCAPTCHA, but the data behind
 // an existing session is just JSON-RPC.
 
@@ -124,7 +124,7 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
   if (!studentRef) throw new Error("No student linked to this LMS account.");
   const [studentId, roll] = studentRef;
 
-  // Student profile (obe.core.student) — a safe subset; reading all 194 fields
+  // Student profile (obe.core.student) - a safe subset; reading all 194 fields
   // trips AccessError.
   let program: string | null = null;
   const profile: LmsProfile = { roll, program: null, department: null, semesterSeq: null };

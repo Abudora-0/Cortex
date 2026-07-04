@@ -18,6 +18,8 @@ function gpTone(gp: number | null | undefined) {
   return { text: "text-fail", bar: "bg-fail", chip: "fail" as const };
 }
 
+export const metadata = { title: "Semesters" };
+
 export default async function SemestersPage() {
   const user = await requireUser();
   const { semesters, cgpa, totalCredits } = await getAcademics(user.id);
@@ -49,7 +51,7 @@ export default async function SemestersPage() {
       {semesters.length > 0 ? (
         <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-4">
           {[
-            { label: "CGPA", value: cgpa != null ? <CountUp value={cgpa} decimals={2} /> : "—", accent: true },
+            { label: "CGPA", value: cgpa != null ? <CountUp value={cgpa} decimals={2} /> : "-", accent: true },
             { label: "Credit hours", value: <CountUp value={totalCredits} /> },
             { label: "Courses", value: <CountUp value={totalCourses} /> },
             { label: "Semesters", value: <CountUp value={semesters.length} /> },

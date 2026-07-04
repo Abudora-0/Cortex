@@ -3,6 +3,8 @@ import { getAcademics } from "@/lib/queries";
 import { WhatIfLab } from "@/components/whatif-lab";
 import { EmptyState } from "@/components/ui/empty-state";
 
+export const metadata = { title: "GPA Lab" };
+
 export default async function GpaLabPage() {
   const user = await requireUser();
   const { semesters } = await getAcademics(user.id);
@@ -23,7 +25,7 @@ export default async function GpaLabPage() {
       {semesters.length === 0 ? (
         <EmptyState
           title="Nothing to project yet"
-          hint="Add a semester and some courses first — then come back to experiment."
+          hint="Add a semester and some courses first - then come back to experiment."
         />
       ) : (
         <WhatIfLab

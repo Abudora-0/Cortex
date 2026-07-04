@@ -26,6 +26,19 @@ const TYPES = ["QUIZ", "ASSIGNMENT", "MID", "FINAL", "LAB", "PROJECT", "OTHER"];
 const gradeTone = (gp: number | null | undefined) =>
   gp == null ? "text-ink" : gp >= 3 ? "text-pass" : gp >= 2 ? "text-warn" : "text-fail";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const course = await prisma.course.findUnique({
+    where: { id },
+    select: { code: true, title: true },
+  });
+  return { title: course ? course.code || course.title : "Course" };
+}
+
 export default async function CoursePage({
   params,
 }: {
@@ -63,7 +76,7 @@ export default async function CoursePage({
       ? letterFor(standing.percent, scheme)
       : null;
 
-  const qualityPoints = gp != null ? (gp * course.creditHours).toFixed(1) : "—";
+  const qualityPoints = gp != null ? (gp * course.creditHours).toFixed(1) : "-";
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -88,11 +101,11 @@ export default async function CoursePage({
 
       {/* Stat strip */}
       <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-4">
-        <Stat label="Grade" value={letter ?? "—"} className={gradeTone(gp)} />
-        <Stat label="Grade points" value={gp != null ? gp.toFixed(2) : "—"} />
+        <Stat label="Grade" value={letter ?? "-"} className={gradeTone(gp)} />
+        <Stat label="Grade points" value={gp != null ? gp.toFixed(2) : "-"} />
         <Stat
           label="Marks"
-          value={displayPercent != null ? `${displayPercent.toFixed(1)}%` : "—"}
+          value={displayPercent != null ? `${displayPercent.toFixed(1)}%` : "-"}
         />
         <Stat label="Quality points" value={qualityPoints} />
       </div>
@@ -103,11 +116,11 @@ export default async function CoursePage({
           {course.lmsStatus ? (
             <span className="text-xs text-ink-soft">
               {course.lmsStatus}
-              {course.lmsStatus === "Provisional" ? " — may still change" : ""}
+              {course.lmsStatus === "Provisional" ? " - may still change" : ""}
             </span>
           ) : null}
           <span className="ml-auto text-[11px] text-ink-faint">
-            relative grading — grade shown as awarded
+            relative grading - grade shown as awarded
           </span>
         </div>
       ) : standing.percent != null ? (
@@ -125,10 +138,10 @@ export default async function CoursePage({
           <Card>
             <CardHeader title="How this counts" hint="synced from the UET OBE portal" />
             <CardBody className="text-xs leading-relaxed text-ink-soft">
-              Shown exactly as awarded — UET grades relatively, so marks map to the letter
+              Shown exactly as awarded - UET grades relatively, so marks map to the letter
               the university assigned. This course contributes{" "}
               <span className="stat-figure font-semibold text-ink">{qualityPoints}</span>{" "}
-              quality points to your CGPA (grade points {gp != null ? gp.toFixed(2) : "—"} ×{" "}
+              quality points to your CGPA (grade points {gp != null ? gp.toFixed(2) : "-"} ×{" "}
               {course.creditHours} credit hours).
             </CardBody>
           </Card>
@@ -141,7 +154,7 @@ export default async function CoursePage({
                   <EmptyState
                     className="m-5"
                     title="No assessments yet"
-                    hint="Add quizzes, assignments and exams below — GPA updates instantly."
+                    hint="Add quizzes, assignments and exams below - GPA updates instantly."
                   />
                 ) : (
                   <Table>
@@ -165,7 +178,7 @@ export default async function CoursePage({
                             {a.obtained != null ? a.obtained : "·"} / {a.total}
                           </Td>
                           <Td className="stat-figure text-ink-soft">
-                            {a.weight != null ? `${a.weight}%` : "—"}
+                            {a.weight != null ? `${a.weight}%` : "-"}
                           </Td>
                           <Td>
                             <form action={deleteAssessment.bind(null, a.id)}>
@@ -201,13 +214,13 @@ export default async function CoursePage({
                     </Select>
                   </Field>
                   <Field label="Obtained" className="w-24">
-                    <Input name="obtained" type="number" step="0.01" min="0" placeholder="—" />
+                    <Input name="obtained" type="number" step="0.01" min="0" placeholder="-" />
                   </Field>
                   <Field label="Total" className="w-24">
                     <Input name="total" type="number" step="0.01" min="0.01" required defaultValue="10" />
                   </Field>
                   <Field label="Weight %" className="w-24">
-                    <Input name="weight" type="number" step="0.5" min="0" max="100" placeholder="—" />
+                    <Input name="weight" type="number" step="0.5" min="0" max="100" placeholder="-" />
                   </Field>
                   <Button type="submit">Add</Button>
                 </form>
@@ -220,7 +233,7 @@ export default async function CoursePage({
                 hint={
                   course.gradeScheme
                     ? "custom scheme for this course"
-                    : "using your default scheme — saving here creates a course-specific one"
+                    : "using your default scheme - saving here creates a course-specific one"
                 }
               />
               <CardBody>

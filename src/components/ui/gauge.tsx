@@ -1,4 +1,4 @@
-// Hand-rolled SVG semi-circle gauge (no chart library) — the signature
+// Hand-rolled SVG semi-circle gauge (no chart library) - the signature
 // dashboard visual. Draws a track arc and a value arc from 0 to `value/max`.
 
 const CX = 100;

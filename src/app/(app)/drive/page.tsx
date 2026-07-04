@@ -53,6 +53,8 @@ function fileKind(item: DriveItem): { Icon: typeof File; hue: number; label: str
   return { Icon: File, hue: 220, label: "File" };
 }
 
+export const metadata = { title: "Drive" };
+
 export default async function DrivePage({
   searchParams,
 }: {
@@ -78,7 +80,7 @@ export default async function DrivePage({
           Drive
         </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          Browse your uni folder without leaving Cortex — read-only, straight from Google Drive.
+          Browse your uni folder without leaving Cortex - read-only, straight from Google Drive.
         </p>
       </header>
 
@@ -97,7 +99,7 @@ export default async function DrivePage({
         <Card>
           <CardHeader
             title="Pick your uni folder"
-            hint="paste the folder's Drive link or its id — everything inside becomes browsable"
+            hint="paste the folder's Drive link or its id - everything inside becomes browsable"
           />
           <CardBody>
             <form action={saveDriveRootFolder} className="flex flex-wrap items-end gap-3">
@@ -136,7 +138,7 @@ async function DriveBrowser({
         title="Couldn't load this folder"
         hint={
           result.error === "not_connected"
-            ? "Drive access is missing — reconnect below."
+            ? "Drive access is missing - reconnect below."
             : `Drive said: ${result.error}`
         }
         action={<ConnectDriveButton label="Reconnect Drive" />}
@@ -152,7 +154,7 @@ async function DriveBrowser({
   const stats = [
     { label: "Folders", value: String(folders.length) },
     { label: "Files", value: String(files.length) },
-    { label: "Size", value: totalBytes > 0 ? prettySize(String(totalBytes)) : "—" },
+    { label: "Size", value: totalBytes > 0 ? prettySize(String(totalBytes)) : "-" },
   ];
 
   return (

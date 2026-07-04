@@ -6,6 +6,16 @@ import { prisma } from "@/lib/db";
 import { NoteEditor } from "@/components/note-editor";
 import { Chip } from "@/components/ui/chip";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const note = await prisma.note.findUnique({ where: { id }, select: { title: true } });
+  return { title: note?.title ?? "Note" };
+}
+
 export default async function NotePage({
   params,
 }: {

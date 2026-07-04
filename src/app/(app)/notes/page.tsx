@@ -26,6 +26,8 @@ function noteText(body: string): string {
   }
 }
 
+export const metadata = { title: "Notes" };
+
 export default async function NotesPage() {
   const { id: userId } = await requireUser();
   const [notes, courses] = await Promise.all([
@@ -79,14 +81,14 @@ export default async function NotesPage() {
         <CardBody>
           <form action={createNote} className="flex flex-wrap items-end gap-3">
             <Field label="Title" className="min-w-52 flex-1">
-              <Input name="title" required placeholder="Week 6 — Transformers lecture" />
+              <Input name="title" required placeholder="Week 6 - Transformers lecture" />
             </Field>
             <Field label="Course (optional)" className="w-56">
               <Select name="courseId" defaultValue="">
                 <option value="">No course</option>
                 {courses.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.code ? `${c.code} — ` : ""}
+                    {c.code ? `${c.code} - ` : ""}
                     {c.title}
                   </option>
                 ))}
@@ -103,7 +105,7 @@ export default async function NotesPage() {
         <div className="rounded-card border border-dashed border-line bg-paper px-5 py-12 text-center">
           <p className="text-sm font-medium text-ink">No notes yet</p>
           <p className="mt-1 text-xs text-ink-faint">
-            Create your first note above — it opens straight into the editor.
+            Create your first note above - it opens straight into the editor.
           </p>
         </div>
       ) : (

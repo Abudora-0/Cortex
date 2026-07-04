@@ -219,7 +219,7 @@ export function WeekTimetable({ events, today }: { events: TEvent[]; today: numb
         {events.length === 0 ? (
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-ink-faint">
             <Clock size={13} />
-            No classes yet — add one below and it&apos;ll drop onto the grid.
+            No classes yet - add one below and it&apos;ll drop onto the grid.
           </div>
         ) : null}
       </div>

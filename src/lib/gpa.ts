@@ -4,8 +4,8 @@ import { z } from "zod";
 // Grade scheme model
 //
 // Schemes are stored as JSON strings (SQLite has no Json column). Two kinds:
-//  - "stepwise": classic letter table — percent >= minPercent → gradePoints
-//  - "linear":   UET-style interpolation — full grade points at/above
+//  - "stepwise": classic letter table - percent >= minPercent → gradePoints
+//  - "linear":   UET-style interpolation - full grade points at/above
 //                maxPercent, dropping perMarkDrop per percentage point,
 //                clamped to passGp at passPercent; below passPercent = 0
 // ---------------------------------------------------------------------------
@@ -37,8 +37,8 @@ export type Boundary = z.infer<typeof boundarySchema>;
 // Official UET Lahore letter/grade-point table, per "Undergraduate Semester
 // Regulations 2016" §10(c) (uet.edu.pk/gallery/UG_Sem_Regulations_2016.pdf):
 // A+/A = 4.0, A− 3.7, B+ 3.3, B 3.0, B− 2.7, C+ 2.3, C 2.0, C− 1.7,
-// D+ 1.3, D 1.0, F 0. UET grades RELATIVELY — instructors set the percent
-// thresholds per subject from the class mean/SD — so the minPercent cutoffs
+// D+ 1.3, D 1.0, F 0. UET grades RELATIVELY - instructors set the percent
+// thresholds per subject from the class mean/SD - so the minPercent cutoffs
 // below are sensible editable defaults, not university-mandated values.
 // The "linear" kind remains available for departments that interpolate.
 export const UET_DEFAULT_SCHEME: GradeSchemeSpec = {
@@ -169,7 +169,7 @@ export function courseStanding(assessments: AssessmentLike[]): CourseStanding {
 }
 
 // ---------------------------------------------------------------------------
-// GPA / CGPA — credit-hour weighted
+// GPA / CGPA - credit-hour weighted
 // ---------------------------------------------------------------------------
 
 export interface CourseGradeInput {

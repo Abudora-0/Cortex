@@ -28,7 +28,7 @@ Google. Replace `AUTH_SECRET` and `CREDENTIALS_KEY` before deploying.
 2. Enable the **Google Drive API** for the project.
 3. Set `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` in `.env`.
 4. While the OAuth app is in *Testing* mode, add your classmates as test users
-   (up to 100) — no Google verification needed.
+   (up to 100) - no Google verification needed.
 
 ### LMS sync (optional)
 
@@ -43,7 +43,7 @@ npm run worker                    # polls sync jobs
 The UET LMS runs on **Odoo** behind Cloudflare. The login selectors in
 `worker/lms-scraper.ts` are verified against the live `/web/login` page; the
 authenticated pages (courses/grades/announcements) still need to be mapped on
-first real login — run `npx tsx worker/recon.ts` while logged in, or inspect
+first real login - run `npx tsx worker/recon.ts` while logged in, or inspect
 manually, and update the `SELECTORS` map. Sync failures surface on the
 Settings page with the exact page that broke. Note: one hidden reCAPTCHA
 input exists on the login form; if Odoo enforces it, sync will need a manual
@@ -61,7 +61,7 @@ The default is the **official UET Lahore table** from the UG Semester
 Regulations 2016 (§10c): A+/A 4.0 · A− 3.7 · B+ 3.3 · B 3.0 · B− 2.7 ·
 C+ 2.3 · C 2.0 · C− 1.7 · D+ 1.3 · D 1.0 · F 0, with credit-hour-weighted
 GPA/CGPA (§11.1). UET awards letters on a *relative* scale (instructors set
-thresholds per subject), so the default percent cutoffs are editable — adjust
+thresholds per subject), so the default percent cutoffs are editable - adjust
 them per course (Course page → Grading scheme) or globally (Settings). A
 linear interpolated mode is also available for departments that use one.
 

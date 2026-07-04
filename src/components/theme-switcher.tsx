@@ -26,14 +26,14 @@ function useTheme(): [string, (id: string) => void] {
     try {
       localStorage.setItem(THEME_KEY, id);
     } catch {
-      /* private mode — non-fatal */
+      /* private mode - non-fatal */
     }
   };
 
   return [theme, setTheme];
 }
 
-/** Full swatch grid — used on the Settings › Appearance card. */
+/** Full swatch grid - used on the Settings › Appearance card. */
 export function ThemePicker() {
   const [theme, setTheme] = useTheme();
 
@@ -137,7 +137,7 @@ export function ModeToggleCompact() {
   );
 }
 
-/** Compact dot-row — used in the sidebar footer. */
+/** Compact dot-row - used in the sidebar footer. */
 export function ThemeDots() {
   const [theme, setTheme] = useTheme();
   return (

@@ -4,12 +4,12 @@ Cortex is a normal Next.js app, so hosting it on Vercel is straightforward. Two
 things differ from local dev:
 
 1. **Database:** local uses SQLite; production uses **Postgres (Neon)**. The app
-   auto-detects this from `DATABASE_URL` — no code changes needed.
+   auto-detects this from `DATABASE_URL` - no code changes needed.
 2. **LMS sync:** on a deployed site each user syncs their own marks with the
    **bookmarklet** (Settings → UET LMS). No passwords are ever stored.
 
-Everything else — Google sign-in, Drive, GPA, calculator, notes, schedule,
-themes — works on Vercel unchanged.
+Everything else - Google sign-in, Drive, GPA, calculator, notes, schedule,
+themes - works on Vercel unchanged.
 
 ---
 
@@ -28,7 +28,7 @@ In [Google Cloud Console](https://console.cloud.google.com) → your project →
 
 - **Authorized redirect URIs** → add `https://<your-app>.vercel.app/api/auth/callback/google`
 - Keep the OAuth consent screen in **Testing** mode and add each friend's Gmail
-  under **Audience → Test users** (up to 100 — no Google verification needed).
+  under **Audience → Test users** (up to 100 - no Google verification needed).
 
 ## 3. Push to GitHub
 
@@ -37,7 +37,7 @@ git init && git add -A && git commit -m "Cortex"
 gh repo create cortex --private --source=. --push   # or push to a repo you made
 ```
 
-`.env`, `.env.local` and `.lms-session.json` are gitignored — secrets won't leak.
+`.env`, `.env.local` and `.lms-session.json` are gitignored - secrets won't leak.
 
 ## 4. Import into Vercel + set environment variables
 
@@ -54,7 +54,7 @@ schema push). Add these **Environment Variables** (Production):
 | `AUTH_GOOGLE_SECRET` | your Google OAuth client secret |
 | `LMS_BASE_URL` | `https://lms.uet.edu.pk` |
 
-**Do not set `AUTH_DEV_LOGIN`** — the passwordless dev login must stay off in
+**Do not set `AUTH_DEV_LOGIN`** - the passwordless dev login must stay off in
 production (it's auto-disabled unless that var is `true`).
 
 ## 5. Deploy
@@ -81,7 +81,7 @@ Sync* to the bookmarks bar). Then:
    API (using the session already in their browser) and posts them to Cortex with
    a personal token. A confirmation pop-up appears.
 
-No LMS passwords are stored anywhere — the sync rides the user's existing login.
+No LMS passwords are stored anywhere - the sync rides the user's existing login.
 
 ---
 
@@ -94,7 +94,7 @@ against Postgres instead, put your Neon URLs in `.env.local` and re-run
 
 ## Security notes
 
-- All data is scoped per `userId` — users only ever see their own records.
+- All data is scoped per `userId` - users only ever see their own records.
 - Dev login is disabled in production.
 - The bookmarklet token authenticates ingest; **Reset token** in Settings
   invalidates old copies if one leaks.

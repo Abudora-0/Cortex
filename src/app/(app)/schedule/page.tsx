@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+export const metadata = { title: "Schedule" };
+
 export default async function SchedulePage() {
   const { id: userId } = await requireUser();
   const rows = await prisma.scheduleEvent.findMany({
@@ -40,7 +42,7 @@ export default async function SchedulePage() {
   const stats = [
     { label: "Classes", value: String(events.length), accent: true },
     { label: "Hours / week", value: (weeklyMin / 60).toFixed(1) },
-    { label: "Busiest day", value: busiestIdx >= 0 ? DAYS[busiestIdx] : "—" },
+    { label: "Busiest day", value: busiestIdx >= 0 ? DAYS[busiestIdx] : "-" },
     { label: "Days on campus", value: `${activeDays}/${7}` },
   ];
 
@@ -52,7 +54,7 @@ export default async function SchedulePage() {
           Schedule
         </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          A time-proportional view of your week — the marker tracks the current time.
+          A time-proportional view of your week - the marker tracks the current time.
         </p>
       </header>
 
@@ -84,7 +86,7 @@ export default async function SchedulePage() {
           <CardBody>
             <form action={createEvent} className="flex flex-wrap items-end gap-3">
               <Field label="Title" className="min-w-44 flex-1">
-                <Input name="title" required placeholder="Linear Algebra — Lecture" />
+                <Input name="title" required placeholder="Linear Algebra - Lecture" />
               </Field>
               <Field label="Day" className="w-24">
                 <Select name="dayOfWeek" defaultValue={String(today)}>

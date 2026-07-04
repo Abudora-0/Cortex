@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Segmented progress bar — filled/total discrete blocks. */
+/** Segmented progress bar - filled/total discrete blocks. */
 export function SegmentedProgress({
   filled,
   total,
