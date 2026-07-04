@@ -23,7 +23,7 @@ export function GradeBars({ buckets }: { buckets: GradeBucket[] }) {
     <div className="space-y-2">
       {buckets.map((b, i) => (
         <div key={b.letter} className="flex items-center gap-3">
-          <span className="stat-figure w-7 shrink-0 text-right text-sm font-bold text-ink">
+          <span className="stat-figure w-7 shrink-0 text-left text-sm font-bold text-ink">
             {b.letter}
           </span>
           <div className="h-4 flex-1 overflow-hidden rounded-full bg-line/60">

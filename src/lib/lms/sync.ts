@@ -35,6 +35,8 @@ export const lmsSnapshotSchema = z.object({
         gradePoints: num.min(0).max(4).nullable(),
         status: z.string().max(40).nullable(),
         order: num.int().min(0).max(10000),
+        teacher: z.string().max(120).nullable().optional(),
+        outline: z.string().max(6000).nullable().optional(),
       })
     )
     .max(300),
@@ -67,6 +69,18 @@ export async function applyLmsSnapshot(
   }
 
   let courseCount = 0;
+  // Resolve LMS-named instructors to Teacher rows once per sync.
+  const teacherCache = new Map<string, string>();
+  const resolveTeacher = async (name: string | null | undefined): Promise<string | null> => {
+    const key = name?.trim();
+    if (!key) return null;
+    const cached = teacherCache.get(key.toLowerCase());
+    if (cached) return cached;
+    const found = await prisma.teacher.findFirst({ where: { userId, name: key }, select: { id: true } });
+    const id = found?.id ?? (await prisma.teacher.create({ data: { userId, name: key } })).id;
+    teacherCache.set(key.toLowerCase(), id);
+    return id;
+  };
 
   for (const [semesterName, results] of bySemester) {
     let semester = await prisma.semester.findFirst({
@@ -95,13 +109,24 @@ export async function applyLmsSnapshot(
         lmsStatus: r.status,
         semesterId: semester.id,
       };
+      const teacherId = await resolveTeacher(r.teacher);
       const existing = await prisma.course.findFirst({
         where: { lmsCourseId: r.lmsCourseId, semester: { userId } },
       });
       if (existing) {
-        await prisma.course.update({ where: { id: existing.id }, data });
+        // Never clobber anything the student edited by hand — only fill blanks.
+        await prisma.course.update({
+          where: { id: existing.id },
+          data: {
+            ...data,
+            ...(r.outline && !existing.outline ? { outline: r.outline } : {}),
+            ...(teacherId && !existing.teacherId ? { teacherId } : {}),
+          },
+        });
       } else {
-        await prisma.course.create({ data });
+        await prisma.course.create({
+          data: { ...data, outline: r.outline ?? null, teacherId: teacherId ?? undefined },
+        });
       }
       courseCount++;
     }

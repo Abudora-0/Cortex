@@ -27,6 +27,9 @@ export interface LmsResult {
   gradePoints: number | null;
   status: string | null;
   order: number; // stable ordering within the full result set
+  // Best-effort extras discovered from the subject record (may be absent).
+  teacher?: string | null;
+  outline?: string | null;
 }
 
 export interface LmsProfile {
@@ -110,6 +113,83 @@ const asNum = (v: unknown) => {
   return Number.isFinite(n) ? n : null;
 };
 
+function htmlToText(html: string): string {
+  return html
+    .replace(/<\s*(br|\/p|\/li|\/div|\/tr)\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .join("\n")
+    .slice(0, 6000);
+}
+
+/**
+ * Best-effort: for the subjects behind a student's results, pull the
+ * instructor + course outline from the subject record. UET's field names
+ * vary, so we discover them at runtime via fields_get and only read fields
+ * that clearly match — anything unexpected is skipped, never guessed wrong.
+ */
+async function enrichSubjects(
+  cookie: string,
+  subjectIds: number[]
+): Promise<Map<number, { teacher: string | null; outline: string | null }>> {
+  const out = new Map<number, { teacher: string | null; outline: string | null }>();
+  if (subjectIds.length === 0) return out;
+  try {
+    const relInfo = await callKw<Record<string, { relation?: string }>>(
+      cookie,
+      "obe.core.result",
+      "fields_get",
+      [["subject_id"]],
+      { attributes: ["relation"] }
+    );
+    const model = relInfo?.subject_id?.relation;
+    if (!model) return out;
+
+    const fields = await callKw<Record<string, { type?: string }>>(
+      cookie,
+      model,
+      "fields_get",
+      [[]],
+      { attributes: ["type"] }
+    );
+    const names = Object.keys(fields);
+    const teacherField = names.find(
+      (n) => fields[n]?.type === "many2one" && /teacher|faculty|instructor|incharge/i.test(n)
+    );
+    const outlineField = names.find(
+      (n) => /outline/i.test(n) && ["text", "html", "char"].includes(fields[n]?.type ?? "")
+    );
+    const read = ["id", teacherField, outlineField].filter(Boolean) as string[];
+    if (read.length <= 1) return out;
+
+    const subs = await callKw<Record<string, unknown>[]>(cookie, model, "read", [subjectIds, read]);
+    for (const s of subs) {
+      const id = asNum(s.id);
+      if (id == null) continue;
+      let teacher: string | null = null;
+      if (teacherField) {
+        const v = s[teacherField];
+        teacher = Array.isArray(v) ? asStr((v as [number, string])[1]) : asStr(v);
+      }
+      let outline: string | null = null;
+      if (outlineField) {
+        const v = s[outlineField];
+        if (typeof v === "string" && v.trim()) outline = htmlToText(v) || null;
+      }
+      out.set(id, { teacher, outline });
+    }
+  } catch {
+    /* enrichment is optional — never fail the sync over it */
+  }
+  return out;
+}
+
 /** Pull this student's full result set from the OBE portal. */
 export async function fetchSnapshot(): Promise<LmsSnapshot> {
   const cookie = cookieHeader();
@@ -154,12 +234,21 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
     ],
   ], { limit: 200 });
 
+  const subjectIdOf = (r: Record<string, unknown>) =>
+    Array.isArray(r.subject_id) ? asNum((r.subject_id as [number, string])[0]) : null;
+
+  const uniqueSubjectIds = Array.from(
+    new Set(rows.map(subjectIdOf).filter((n): n is number => n != null))
+  );
+  const meta = await enrichSubjects(cookie, uniqueSubjectIds);
+
   const results: LmsResult[] = rows.map((r, i) => {
     const rawName = asStr(r.subject_name_for_grade_book) ?? (Array.isArray(r.subject_id) ? String((r.subject_id as [number, string])[1]) : "Course");
     const { code, title } = splitCode(rawName);
     const ch = asNum(r.ch_rel) ?? 0;
     const qualityPoints = asNum(r.gp_rel); // gp_rel = gradePoints × creditHours
     const gradePoints = qualityPoints != null && ch > 0 ? Math.round((qualityPoints / ch) * 100) / 100 : null;
+    const sm = meta.get(subjectIdOf(r) ?? -1);
     return {
       lmsCourseId: String(r.id),
       semesterName: asStr(r.semester_name) ?? "Unknown semester",
@@ -171,6 +260,8 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
       gradePoints,
       status: asStr(r.result_uo_status_rel),
       order: i,
+      teacher: sm?.teacher ?? null,
+      outline: sm?.outline ?? null,
     };
   });
 
