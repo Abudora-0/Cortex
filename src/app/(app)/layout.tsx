@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { auth, signOut } from "@/lib/auth";
 import { Sidebar } from "@/components/sidebar";
 import { PageTransition } from "@/components/page-transition";
-import { LogOut } from "lucide-react";
+
+async function doSignOut() {
+  "use server";
+  await signOut({ redirectTo: "/signin" });
+}
 
 export default async function AppLayout({
   children,
@@ -20,33 +25,15 @@ export default async function AppLayout({
     .join("")
     .toUpperCase();
 
+  const collapsed = (await cookies()).get("cortex-sidebar")?.value === "1";
+
   return (
     <div className="flex min-h-screen">
       <Sidebar
-        footer={
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brass-500 font-display text-xs font-bold text-[#1c1917]">
-              {initials}
-            </span>
-            <span className="hidden min-w-0 flex-1 truncate text-xs text-sidebar-fg/70 lg:block">
-              {name}
-            </span>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/signin" });
-              }}
-            >
-              <button
-                type="submit"
-                title="Sign out"
-                className="rounded-md p-1.5 text-sidebar-fg/50 transition-colors hover:bg-white/10 hover:text-sidebar-fg"
-              >
-                <LogOut size={15} />
-              </button>
-            </form>
-          </div>
-        }
+        name={name}
+        initials={initials}
+        signOutAction={doSignOut}
+        defaultCollapsed={collapsed}
       />
       <main className="app-aura min-w-0 flex-1 px-6 py-8 lg:px-10">
         <PageTransition>{children}</PageTransition>

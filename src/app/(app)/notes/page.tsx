@@ -1,14 +1,30 @@
-import Link from "next/link";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { createNote, deleteNote } from "@/lib/actions";
+import { createNote } from "@/lib/actions";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { Field, Input, Select } from "@/components/ui/input";
-import { EmptyState } from "@/components/ui/empty-state";
+import { NotesBrowser, type NoteCard, type CourseFacet } from "@/components/notes-browser";
 import { formatDate } from "@/lib/utils";
+
+// Pull readable plain text out of a TipTap/ProseMirror JSON document.
+function noteText(body: string): string {
+  try {
+    const doc = JSON.parse(body);
+    const parts: string[] = [];
+    const walk = (n: unknown) => {
+      if (!n || typeof n !== "object") return;
+      const node = n as { text?: string; content?: unknown[] };
+      if (typeof node.text === "string") parts.push(node.text);
+      if (Array.isArray(node.content)) node.content.forEach(walk);
+    };
+    walk(doc);
+    return parts.join(" ").replace(/\s+/g, " ").trim();
+  } catch {
+    return "";
+  }
+}
 
 export default async function NotesPage() {
   const { id: userId } = await requireUser();
@@ -25,19 +41,41 @@ export default async function NotesPage() {
     }),
   ]);
 
+  const cards: NoteCard[] = notes.map((n) => {
+    const text = noteText(n.body);
+    return {
+      id: n.id,
+      title: n.title,
+      preview: text.slice(0, 180),
+      words: text ? text.split(/\s+/).length : 0,
+      courseId: n.courseId ?? null,
+      courseLabel: n.course ? n.course.code ?? n.course.title : null,
+      editedLabel: formatDate(n.updatedAt),
+    };
+  });
+
+  // Only surface courses that actually have notes, for the filter.
+  const usedCourseIds = new Set(cards.map((c) => c.courseId).filter(Boolean));
+  const facets: CourseFacet[] = courses
+    .filter((c) => usedCourseIds.has(c.id))
+    .map((c) => ({ id: c.id, label: c.code ?? c.title }));
+
   return (
     <div className="mx-auto max-w-4xl">
-      <header className="mb-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
-          Notes
-        </h1>
-        <p className="mt-1 text-sm text-ink-soft">
-          Scratchpads, lecture notes, anything worth keeping.
-        </p>
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">Everything worth keeping</p>
+          <h1 className="font-display text-[2rem] font-bold leading-tight tracking-tight text-ink">
+            Notes
+          </h1>
+        </div>
+        <span className="text-xs text-ink-faint">
+          {cards.length} note{cards.length === 1 ? "" : "s"}
+        </span>
       </header>
 
       <Card className="mb-6">
-        <CardHeader title="New note" />
+        <CardHeader title="New note" hint="opens straight into the editor" />
         <CardBody>
           <form action={createNote} className="flex flex-wrap items-end gap-3">
             <Field label="Title" className="min-w-52 flex-1">
@@ -61,41 +99,15 @@ export default async function NotesPage() {
         </CardBody>
       </Card>
 
-      {notes.length === 0 ? (
-        <EmptyState
-          title="No notes yet"
-          hint="Create your first note above — it opens straight into the editor."
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {notes.map((n) => (
-            <Card key={n.id} className="group relative transition-colors hover:border-garnet-300">
-              <Link href={`/notes/${n.id}`} className="block px-5 py-4">
-                <p className="font-display text-sm font-semibold text-ink">{n.title}</p>
-                <p className="mt-1 text-[11px] text-ink-faint">
-                  edited {formatDate(n.updatedAt)}
-                </p>
-                {n.course ? (
-                  <Chip tone="garnet" className="mt-2">
-                    {n.course.code ?? n.course.title}
-                  </Chip>
-                ) : null}
-              </Link>
-              <form
-                action={deleteNote.bind(null, n.id)}
-                className="invisible absolute right-3 top-3 group-hover:visible"
-              >
-                <button
-                  type="submit"
-                  aria-label={`Delete ${n.title}`}
-                  className="rounded-md p-1 text-ink-faint hover:bg-fail-soft hover:text-fail"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </form>
-            </Card>
-          ))}
+      {cards.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line bg-paper px-5 py-12 text-center">
+          <p className="text-sm font-medium text-ink">No notes yet</p>
+          <p className="mt-1 text-xs text-ink-faint">
+            Create your first note above — it opens straight into the editor.
+          </p>
         </div>
+      ) : (
+        <NotesBrowser notes={cards} courses={facets} />
       )}
     </div>
   );
