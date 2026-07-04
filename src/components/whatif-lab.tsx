@@ -86,8 +86,8 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
     setHypos((hs) => hs.map((h) => ({ ...h, grade })));
 
   return (
-    <div className="grid gap-5 xl:grid-cols-3">
-      <div className="space-y-5 xl:col-span-2">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+      <div className="min-w-0 space-y-5 xl:col-span-2">
         {/* Current courses */}
         {semesters.map((sem) => {
           const semGpa = aggregate(sem.courses.map((c) => ({ ch: c.creditHours, gp: projectedGp(c) })));

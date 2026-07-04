@@ -141,9 +141,9 @@ export function GpaCalculator({
   const headlineLabel = combined ? "New CGPA" : multi ? "Cumulative GPA" : "Semester GPA";
 
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {/* Semester groups */}
-      <div className="space-y-4 lg:col-span-2">
+      <div className="min-w-0 space-y-4 lg:col-span-2">
         {sems.map((s, si) => {
           const { gpa } = agg(s.rows);
           return (
@@ -175,7 +175,7 @@ export function GpaCalculator({
               </div>
 
               <CardBody className="p-0">
-                <div className="grid grid-cols-[1fr_5.5rem_6rem_2rem] items-center gap-3 border-b border-line bg-canvas px-5 py-2 text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
+                <div className="grid grid-cols-[1fr_3.25rem_4.5rem_1.75rem] items-center gap-2 sm:grid-cols-[1fr_5.5rem_6rem_2rem] sm:gap-3 border-b border-line bg-canvas px-5 py-2 text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
                   <span>Course</span>
                   <span>Credits</span>
                   <span>Grade</span>
@@ -187,13 +187,13 @@ export function GpaCalculator({
                     return (
                       <li
                         key={r.id}
-                        className="grid grid-cols-[1fr_5.5rem_6rem_2rem] items-center gap-3 border-b border-line/70 px-5 py-2.5 last:border-0"
+                        className="grid grid-cols-[1fr_3.25rem_4.5rem_1.75rem] items-center gap-2 sm:grid-cols-[1fr_5.5rem_6rem_2rem] sm:gap-3 border-b border-line/70 px-5 py-2.5 last:border-0"
                       >
                         <Input
                           value={r.name}
                           onChange={(e) => updateRow(s.id, r.id, { name: e.target.value })}
                           placeholder={`Course ${i + 1}`}
-                          className="h-9"
+                          className="h-9 min-w-0"
                         />
                         <Input
                           type="number"
@@ -201,13 +201,13 @@ export function GpaCalculator({
                           step="0.5"
                           value={r.creditHours}
                           onChange={(e) => updateRow(s.id, r.id, { creditHours: e.target.value })}
-                          className="h-9 text-center"
+                          className="h-9 min-w-0 px-2 text-center"
                           aria-label="Credit hours"
                         />
                         <Select
                           value={r.grade}
                           onChange={(e) => updateRow(s.id, r.id, { grade: e.target.value })}
-                          className="h-9"
+                          className="h-9 min-w-0 px-2"
                           aria-label="Grade"
                         >
                           {UET_LETTER_GRADES.map((g) => (

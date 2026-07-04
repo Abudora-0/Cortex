@@ -78,7 +78,7 @@ export function SchemeEditor({
               }));
               setSaved(false);
             }}
-            className="w-56"
+            className="w-full sm:w-56"
           >
             <option value="stepwise">Letter table (UET official)</option>
             <option value="linear">Linear (interpolated)</option>
@@ -128,14 +128,14 @@ export function SchemeEditor({
         <Label>Letter boundaries</Label>
         <div className="space-y-2">
           {spec.boundaries.map((b, i) => (
-            <div key={i} className="flex items-center gap-2">
+            <div key={i} className="flex items-center gap-1.5 sm:gap-2">
               <Input
                 aria-label="Letter"
                 value={b.letter}
                 onChange={(e) => setBoundary(i, { letter: e.target.value })}
-                className="w-16 text-center font-semibold"
+                className="w-11 shrink-0 px-1 text-center font-semibold sm:w-16 sm:px-3"
               />
-              <span className="text-xs text-ink-faint">at ≥</span>
+              <span className="hidden text-xs text-ink-faint sm:inline">at ≥</span>
               <Input
                 aria-label="Minimum percent"
                 type="number"
@@ -143,9 +143,10 @@ export function SchemeEditor({
                 onChange={(e) =>
                   setBoundary(i, { minPercent: parseFloat(e.target.value) || 0 })
                 }
-                className="w-20"
+                className="min-w-0 flex-1 px-2 sm:w-20 sm:flex-none sm:px-3"
               />
-              <span className="text-xs text-ink-faint">% →</span>
+              <span className="text-xs text-ink-faint">%</span>
+              <span className="hidden text-xs text-ink-faint sm:inline">→</span>
               <Input
                 aria-label="Grade points"
                 type="number"
@@ -154,9 +155,9 @@ export function SchemeEditor({
                 onChange={(e) =>
                   setBoundary(i, { gradePoints: parseFloat(e.target.value) || 0 })
                 }
-                className="w-24"
+                className="min-w-0 flex-1 px-2 sm:w-24 sm:flex-none sm:px-3"
               />
-              <span className="text-xs text-ink-faint">GP</span>
+              <span className="hidden text-xs text-ink-faint sm:inline">GP</span>
               <button
                 type="button"
                 aria-label="Remove boundary"
