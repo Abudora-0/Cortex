@@ -238,6 +238,64 @@ export async function deleteTask(id: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Assignments
+// ---------------------------------------------------------------------------
+
+const ASSIGNMENT_STATUSES = ["TODO", "SUBMITTED", "GRADED", "MISSED"] as const;
+
+export async function createAssignment(formData: FormData) {
+  const userId = await requireUserId();
+  const title = z.string().min(1).max(200).parse(formData.get("title"));
+
+  // Only attach a course the user actually owns.
+  let courseId = String(formData.get("courseId") || "") || null;
+  if (courseId) {
+    const owned = await prisma.course.findFirst({
+      where: { id: courseId, semester: { userId } },
+      select: { id: true },
+    });
+    if (!owned) courseId = null;
+  }
+
+  const dueRaw = formData.get("dueAt");
+  const dueAt = dueRaw ? new Date(String(dueRaw)) : null;
+
+  let link: string | null = null;
+  const linkRaw = String(formData.get("link") || "").trim();
+  if (linkRaw) {
+    const withScheme = /^https?:\/\//i.test(linkRaw) ? linkRaw : `https://${linkRaw}`;
+    if (z.string().url().safeParse(withScheme).success) link = withScheme.slice(0, 500);
+  }
+
+  await prisma.assignment.create({
+    data: {
+      userId,
+      title,
+      courseId,
+      dueAt: dueAt && !isNaN(+dueAt) ? dueAt : null,
+      link,
+    },
+  });
+  revalidatePath("/assignments");
+  revalidatePath("/");
+}
+
+export async function setAssignmentStatus(id: string, status: string) {
+  const userId = await requireUserId();
+  if (!ASSIGNMENT_STATUSES.includes(status as (typeof ASSIGNMENT_STATUSES)[number])) return;
+  await prisma.assignment.updateMany({ where: { id, userId }, data: { status } });
+  revalidatePath("/assignments");
+  revalidatePath("/");
+}
+
+export async function deleteAssignment(id: string) {
+  const userId = await requireUserId();
+  await prisma.assignment.deleteMany({ where: { id, userId } });
+  revalidatePath("/assignments");
+  revalidatePath("/");
+}
+
+// ---------------------------------------------------------------------------
 // Schedule events
 // ---------------------------------------------------------------------------
 
