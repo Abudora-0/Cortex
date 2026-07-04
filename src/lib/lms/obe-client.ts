@@ -128,18 +128,30 @@ function htmlToText(html: string): string {
     .slice(0, 6000);
 }
 
+const wkNum = (v: unknown) => {
+  const n = parseInt(String(v), 10);
+  return Number.isFinite(n) ? n : 9999;
+};
+
 /**
  * Best-effort: for the subjects behind a student's results, pull the
- * instructor + course outline from the subject record. UET's field names
- * vary, so we discover them at runtime via fields_get and only read fields
- * that clearly match — anything unexpected is skipped, never guessed wrong.
+ * instructor + course outline from the subject record. Field names are
+ * discovered at runtime via fields_get and matched by name, so nothing is
+ * ever guessed wrong. On UET's LMS this resolves to supervisor_faculty_id
+ * (instructor) and the week-by-week content_ids/topics (outline), with
+ * course_description as a fallback. Teacher and outline are isolated so a
+ * failure in one never loses the other.
  */
 async function enrichSubjects(
   cookie: string,
   subjectIds: number[]
 ): Promise<Map<number, { teacher: string | null; outline: string | null }>> {
   const out = new Map<number, { teacher: string | null; outline: string | null }>();
+  for (const id of subjectIds) out.set(id, { teacher: null, outline: null });
   if (subjectIds.length === 0) return out;
+
+  let model: string | undefined;
+  let fields: Record<string, { type?: string; relation?: string }> = {};
   try {
     const relInfo = await callKw<Record<string, { relation?: string }>>(
       cookie,
@@ -148,45 +160,98 @@ async function enrichSubjects(
       [["subject_id"]],
       { attributes: ["relation"] }
     );
-    const model = relInfo?.subject_id?.relation;
+    model = relInfo?.subject_id?.relation;
     if (!model) return out;
-
-    const fields = await callKw<Record<string, { type?: string }>>(
+    fields = await callKw<Record<string, { type?: string; relation?: string }>>(
       cookie,
       model,
       "fields_get",
       [[]],
-      { attributes: ["type"] }
+      { attributes: ["type", "relation"] }
     );
-    const names = Object.keys(fields);
-    const teacherField = names.find(
+  } catch {
+    return out;
+  }
+  const names = Object.keys(fields);
+
+  // Instructor — its own try so an outline failure can't drop it.
+  try {
+    const tf = names.find(
       (n) => fields[n]?.type === "many2one" && /teacher|faculty|instructor|incharge/i.test(n)
     );
-    const outlineField = names.find(
-      (n) => /outline/i.test(n) && ["text", "html", "char"].includes(fields[n]?.type ?? "")
-    );
-    const read = ["id", teacherField, outlineField].filter(Boolean) as string[];
-    if (read.length <= 1) return out;
-
-    const subs = await callKw<Record<string, unknown>[]>(cookie, model, "read", [subjectIds, read]);
-    for (const s of subs) {
-      const id = asNum(s.id);
-      if (id == null) continue;
-      let teacher: string | null = null;
-      if (teacherField) {
-        const v = s[teacherField];
-        teacher = Array.isArray(v) ? asStr((v as [number, string])[1]) : asStr(v);
+    if (tf) {
+      const subs = await callKw<Record<string, unknown>[]>(cookie, model, "read", [subjectIds, ["id", tf]]);
+      for (const s of subs) {
+        const id = asNum(s.id);
+        if (id == null) continue;
+        const v = s[tf];
+        const t = Array.isArray(v) ? asStr((v as [number, string])[1]) : asStr(v);
+        if (t) out.get(id)!.teacher = t;
       }
-      let outline: string | null = null;
-      if (outlineField) {
-        const v = s[outlineField];
-        if (typeof v === "string" && v.trim()) outline = htmlToText(v) || null;
-      }
-      out.set(id, { teacher, outline });
     }
   } catch {
-    /* enrichment is optional — never fail the sync over it */
+    /* optional */
   }
+
+  // Outline — prefer week-by-week content topics, fall back to a description.
+  try {
+    const contentField = names.find((n) => fields[n]?.type === "one2many" && /content/i.test(n));
+    const descField = names.find(
+      (n) =>
+        ["text", "html", "char"].includes(fields[n]?.type ?? "") &&
+        /course_description|description|outline|syllabus/i.test(n)
+    );
+    const readF = ["id"];
+    if (contentField) readF.push(contentField);
+    if (descField) readF.push(descField);
+    if (readF.length > 1) {
+      const subs = await callKw<Record<string, unknown>[]>(cookie, model, "read", [subjectIds, readF]);
+
+      const topicsBySub = new Map<number, Record<string, unknown>[]>();
+      if (contentField) {
+        const contentModel = fields[contentField]?.relation;
+        const contentIds: number[] = [];
+        for (const s of subs) {
+          const v = s[contentField];
+          if (Array.isArray(v)) for (const c of v) contentIds.push(c as number);
+        }
+        if (contentModel && contentIds.length) {
+          const recs = await callKw<Record<string, unknown>[]>(cookie, contentModel, "read", [
+            contentIds.slice(0, 800),
+            ["id", "week", "topics", "subject_id"],
+          ]);
+          for (const r of recs) {
+            const sid = Array.isArray(r.subject_id) ? asNum((r.subject_id as [number, string])[0]) : null;
+            if (sid == null) continue;
+            if (!topicsBySub.has(sid)) topicsBySub.set(sid, []);
+            topicsBySub.get(sid)!.push(r);
+          }
+        }
+      }
+
+      for (const s of subs) {
+        const id = asNum(s.id);
+        if (id == null) continue;
+        let outline: string | null = null;
+        const list = topicsBySub.get(id);
+        if (list && list.length) {
+          list.sort((a, b) => wkNum(a.week) - wkNum(b.week) || (asNum(a.id) ?? 0) - (asNum(b.id) ?? 0));
+          const lines = list
+            .map((r) => asStr(r.topics)?.replace(/\s+/g, " ").trim() ?? "")
+            .filter(Boolean);
+          if (lines.length) outline = lines.join("\n").slice(0, 6000);
+        }
+        if (!outline && descField) {
+          const v = s[descField];
+          if (typeof v === "string" && v.trim()) outline = htmlToText(v) || null;
+        }
+        if (outline) out.get(id)!.outline = outline;
+      }
+    }
+  } catch {
+    /* optional */
+  }
+
   return out;
 }
 
