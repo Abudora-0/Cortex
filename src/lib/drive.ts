@@ -13,18 +13,24 @@ export interface DriveItem {
   isFolder: boolean;
 }
 
-export async function getDriveStatus(userId: string) {
-  const account = await prisma.account.findFirst({
-    where: { userId, provider: "google" },
+// The account that actually carries the Drive grant. Drive is now an optional
+// incremental connection (provider "google-drive"), but older logins stored the
+// scope on the base "google" account - matching by scope handles both.
+function driveAccount(userId: string) {
+  return prisma.account.findFirst({
+    where: { userId, scope: { contains: DRIVE_SCOPE } },
   });
-  const connected = !!account?.refresh_token || !!account?.access_token;
-  const hasScope = !!account?.scope?.includes(DRIVE_SCOPE);
-  return { account, connected, hasScope };
+}
+
+export async function getDriveStatus(userId: string) {
+  const account = await driveAccount(userId);
+  const hasScope = !!account;
+  return { account, connected: hasScope, hasScope };
 }
 
 async function getDriveClient(userId: string) {
-  const { account, hasScope } = await getDriveStatus(userId);
-  if (!account || !hasScope) return null;
+  const account = await driveAccount(userId);
+  if (!account) return null;
 
   const oauth2 = new google.auth.OAuth2(
     process.env.AUTH_GOOGLE_ID,

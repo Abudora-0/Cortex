@@ -16,15 +16,27 @@ export const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
 if (hasGoogle) {
   providers.push(
+    // Base login. Only non-sensitive scopes (email/profile), so the app can be
+    // published to production with no verification, no "unverified app" warning
+    // and no 100-user cap - anyone can just sign in with Google.
     Google({
-      // Request the Drive read-only scope up front alongside offline access.
-      // (Passing the scope only from the client "Connect Drive" button proved
-      // unreliable in Auth.js v5 - it was dropped from the auth URL - so we
-      // request it at the provider level and force re-consent.)
+      allowDangerousEmailAccountLinking: true,
+      authorization: {
+        params: { scope: "openid email profile" },
+      },
+    }),
+    // Optional, incremental Drive access. Requested only when the user clicks
+    // "Connect Drive" (a separate provider id keeps it off the login flow).
+    // Only this grant touches the restricted drive.readonly scope.
+    Google({
+      id: "google-drive",
+      name: "Google Drive",
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
           access_type: "offline",
           prompt: "consent",
+          include_granted_scopes: "true",
           scope: `openid email profile ${DRIVE_SCOPE}`,
         },
       },
@@ -74,10 +86,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // re-login (e.g. re-consenting to add Drive), refresh them ourselves so
       // getDriveStatus() sees the newly granted scope. `account` is only
       // present at sign-in, so this runs once per login, not per request.
-      if (account?.provider === "google") {
+      if (account?.provider === "google" || account?.provider === "google-drive") {
         await prisma.account.updateMany({
           where: {
-            provider: "google",
+            provider: account.provider,
             providerAccountId: account.providerAccountId,
           },
           data: {
