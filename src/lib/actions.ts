@@ -166,6 +166,36 @@ export async function deleteAssessment(id: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Course outline & grading policy
+// ---------------------------------------------------------------------------
+
+export async function saveCourseOutline(courseId: string, outline: string) {
+  const userId = await requireUserId();
+  await assertCourseOwned(courseId, userId);
+  const clean = outline.slice(0, 6000).trim();
+  await prisma.course.update({
+    where: { id: courseId },
+    data: { outline: clean || null },
+  });
+  revalidatePath(`/courses/${courseId}`);
+}
+
+const policySchema = z
+  .array(z.object({ label: z.string().max(60), weight: z.coerce.number().min(0).max(100) }))
+  .max(20);
+
+export async function saveGradingPolicy(courseId: string, policyJson: string) {
+  const userId = await requireUserId();
+  await assertCourseOwned(courseId, userId);
+  const rows = policySchema.parse(JSON.parse(policyJson)).filter((r) => r.label.trim() !== "");
+  await prisma.course.update({
+    where: { id: courseId },
+    data: { gradingPolicy: rows.length ? JSON.stringify(rows) : null },
+  });
+  revalidatePath(`/courses/${courseId}`);
+}
+
+// ---------------------------------------------------------------------------
 // Grade schemes
 // ---------------------------------------------------------------------------
 

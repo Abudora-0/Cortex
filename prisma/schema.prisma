@@ -112,6 +112,11 @@ model Course {
   lmsGradePoints  Float?
   lmsStatus       String? // "Confirmed" | "Provisional"
 
+  // Free-form course outline (topics/weeks), one item per line.
+  outline       String?
+  // Official grading weightage, JSON: [{ label, weight }].
+  gradingPolicy String?
+
   assessments Assessment[]
   attendance  AttendanceRecord[]
   gradeScheme GradeScheme?

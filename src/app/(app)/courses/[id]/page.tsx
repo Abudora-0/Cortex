@@ -19,6 +19,8 @@ import { Table, THead, Th, Tr, Td, RowNum } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Bar } from "@/components/ui/progress";
 import { SchemeEditor } from "@/components/scheme-editor";
+import { GradingPolicyEditor, type PolicyRow } from "@/components/grading-policy-editor";
+import { CourseOutlineEditor } from "@/components/course-outline-editor";
 import { cn } from "@/lib/utils";
 
 const TYPES = ["QUIZ", "ASSIGNMENT", "MID", "FINAL", "LAB", "PROJECT", "OTHER"];
@@ -77,6 +79,13 @@ export default async function CoursePage({
       : null;
 
   const qualityPoints = gp != null ? (gp * course.creditHours).toFixed(1) : "-";
+
+  let policy: PolicyRow[] = [];
+  try {
+    if (course.gradingPolicy) policy = JSON.parse(course.gradingPolicy);
+  } catch {
+    policy = [];
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -242,6 +251,21 @@ export default async function CoursePage({
             </Card>
           </>
         )}
+
+        {/* Grading policy & outline — shown for every course */}
+        <Card>
+          <CardHeader title="Grading policy" hint="how the marks are split across the term" />
+          <CardBody>
+            <GradingPolicyEditor courseId={course.id} initial={policy} />
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Course outline" hint="topics & what to expect, week by week" />
+          <CardBody>
+            <CourseOutlineEditor courseId={course.id} initial={course.outline ?? ""} />
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
