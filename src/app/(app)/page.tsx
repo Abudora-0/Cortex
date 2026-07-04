@@ -38,6 +38,14 @@ function shortSem(name: string) {
   return m ? `${m[1][0].toUpperCase()}${m[2].slice(2)}` : name.slice(0, 4);
 }
 
+function assignmentDue(iso: string | null): { label: string; tone: "fail" | "warn" | "neutral" } {
+  if (!iso) return { label: "No due date", tone: "neutral" };
+  const hrs = (new Date(iso).getTime() - Date.now()) / 3_600_000;
+  if (hrs < 0) return { label: `Overdue · ${formatDate(iso)}`, tone: "fail" };
+  if (hrs < 48) return { label: `Due ${formatDate(iso)}`, tone: "warn" };
+  return { label: `Due ${formatDate(iso)}`, tone: "neutral" };
+}
+
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
@@ -105,6 +113,24 @@ export default async function DashboardPage() {
   const attTone = (pct: number) => (pct >= 80 ? "bg-pass" : pct >= 75 ? "bg-warn" : "bg-fail");
   const attTextTone = (pct: number) =>
     pct >= 80 ? "text-pass" : pct >= 75 ? "text-warn" : "text-fail";
+
+  // Upcoming assignments (open ones, soonest due first)
+  const openAssignments = await prisma.assignment.findMany({
+    where: { userId: user.id, status: "TODO" },
+    include: { course: { select: { code: true, title: true } } },
+  });
+  const overdueAssignments = openAssignments.filter(
+    (a) => a.dueAt && a.dueAt.getTime() < Date.now()
+  ).length;
+  const upcomingAssignments = [...openAssignments]
+    .sort((a, b) => (a.dueAt ? a.dueAt.getTime() : Infinity) - (b.dueAt ? b.dueAt.getTime() : Infinity))
+    .slice(0, 5)
+    .map((a) => ({
+      id: a.id,
+      title: a.title,
+      courseLabel: a.course ? a.course.code ?? a.course.title : null,
+      dueISO: a.dueAt ? a.dueAt.toISOString() : null,
+    }));
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -337,6 +363,44 @@ export default async function DashboardPage() {
                       </div>
                     </li>
                   ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader
+              title="Assignments"
+              hint={overdueAssignments > 0 ? `${overdueAssignments} overdue` : "what's coming up"}
+              action={
+                <Link href="/assignments" className="text-ink-faint transition-colors hover:text-garnet-600" aria-label="Open assignments">
+                  <ArrowUpRight size={16} />
+                </Link>
+              }
+            />
+            <CardBody className="p-0">
+              {upcomingAssignments.length === 0 ? (
+                <p className="px-5 py-6 text-center text-xs text-ink-faint">
+                  Nothing due - add assignments from the Assignments page.
+                </p>
+              ) : (
+                <ul>
+                  {upcomingAssignments.map((a) => {
+                    const d = assignmentDue(a.dueISO);
+                    return (
+                      <li key={a.id} className="border-b border-line/70 last:border-0">
+                        <Link href="/assignments" className="flex items-center gap-3 px-5 py-3 hover:bg-canvas/60">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-ink">{a.title}</p>
+                            {a.courseLabel ? (
+                              <p className="text-[11px] text-ink-faint">{a.courseLabel}</p>
+                            ) : null}
+                          </div>
+                          <Chip tone={d.tone}>{d.label}</Chip>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </CardBody>
