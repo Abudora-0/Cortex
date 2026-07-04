@@ -209,7 +209,8 @@ export default async function DashboardPage() {
                   <p className="truncate text-sm font-medium text-ink">{strongest.code ?? strongest.title}</p>
                 </div>
                 <Chip tone="pass">
-                  {strongest.letter} · {strongest.gradePoints?.toFixed(1)}
+                  <span>{strongest.letter}</span>
+                  <span className="font-normal opacity-70">{strongest.gradePoints?.toFixed(1)}</span>
                 </Chip>
               </div>
             ) : null}
@@ -223,7 +224,8 @@ export default async function DashboardPage() {
                   <p className="truncate text-sm font-medium text-ink">{focus.code ?? focus.title}</p>
                 </div>
                 <Chip tone={(focus.gradePoints ?? 0) >= 2 ? "warn" : "fail"}>
-                  {focus.letter} · {focus.gradePoints?.toFixed(1)}
+                  <span>{focus.letter}</span>
+                  <span className="font-normal opacity-70">{focus.gradePoints?.toFixed(1)}</span>
                 </Chip>
               </div>
             ) : null}

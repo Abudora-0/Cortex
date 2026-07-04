@@ -103,14 +103,9 @@ export function NotesBrowser({ notes, courses }: { notes: NoteCard[]; courses: C
                   />
                 ) : null}
                 <Link href={`/notes/${n.id}`} className="block px-5 py-4 pl-6">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-display text-[15px] font-semibold leading-snug text-ink group-hover:text-garnet-600">
-                      {n.title}
-                    </p>
-                    <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[10px] text-ink-faint">
-                      <FileText size={11} /> {n.words}w
-                    </span>
-                  </div>
+                  <p className="pr-7 font-display text-[15px] font-semibold leading-snug text-ink group-hover:text-garnet-600">
+                    {n.title}
+                  </p>
                   <p className="mt-1.5 line-clamp-2 min-h-[2.5em] text-xs leading-relaxed text-ink-soft">
                     {n.preview || "Empty note — open to start writing."}
                   </p>
@@ -119,6 +114,9 @@ export function NotesBrowser({ notes, courses }: { notes: NoteCard[]; courses: C
                       <Chip tone="garnet">{n.courseLabel}</Chip>
                     ) : null}
                     <span className="text-[11px] text-ink-faint">edited {n.editedLabel}</span>
+                    <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10px] text-ink-faint">
+                      <FileText size={11} /> {n.words}w
+                    </span>
                   </div>
                 </Link>
                 <form

@@ -19,8 +19,12 @@ import { Table, THead, Th, Tr, Td, RowNum } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Bar } from "@/components/ui/progress";
 import { SchemeEditor } from "@/components/scheme-editor";
+import { cn } from "@/lib/utils";
 
 const TYPES = ["QUIZ", "ASSIGNMENT", "MID", "FINAL", "LAB", "PROJECT", "OTHER"];
+
+const gradeTone = (gp: number | null | undefined) =>
+  gp == null ? "text-ink" : gp >= 3 ? "text-pass" : gp >= 2 ? "text-warn" : "text-fail";
 
 export default async function CoursePage({
   params,
@@ -59,6 +63,8 @@ export default async function CoursePage({
       ? letterFor(standing.percent, scheme)
       : null;
 
+  const qualityPoints = gp != null ? (gp * course.creditHours).toFixed(1) : "—";
+
   return (
     <div className="mx-auto max-w-4xl">
       <Link
@@ -68,31 +74,31 @@ export default async function CoursePage({
         <ArrowLeft size={13} /> {course.semester.name}
       </Link>
 
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
-            {course.code ? `${course.code} · ` : ""}
-            {course.title}
-          </h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            {course.creditHours} credit hours
-            {course.source === "LMS" ? " · synced from LMS" : ""}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="stat-figure text-4xl font-bold text-garnet-600">
-            {letter ?? "—"}
-          </p>
-          <p className="text-xs text-ink-faint">
-            {displayPercent != null
-              ? `${displayPercent.toFixed(1)}% · ${gp?.toFixed(2)} GP`
-              : "no marks yet"}
-          </p>
-        </div>
+      <header className="mb-6">
+        <p className="eyebrow">{course.code || course.semester.name}</p>
+        <h1 className="font-display text-[2rem] font-bold leading-tight tracking-tight text-ink">
+          {course.title}
+        </h1>
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-soft">
+          {course.creditHours} credit hours
+          {course.source === "LMS" ? <Chip tone="garnet">LMS</Chip> : null}
+          {course.lmsStatus === "Provisional" ? <Chip tone="warn">Provisional</Chip> : null}
+        </p>
       </header>
 
+      {/* Stat strip */}
+      <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-4">
+        <Stat label="Grade" value={letter ?? "—"} className={gradeTone(gp)} />
+        <Stat label="Grade points" value={gp != null ? gp.toFixed(2) : "—"} />
+        <Stat
+          label="Marks"
+          value={displayPercent != null ? `${displayPercent.toFixed(1)}%` : "—"}
+        />
+        <Stat label="Quality points" value={qualityPoints} />
+      </div>
+
       {isLms ? (
-        <div className="mb-6 flex items-center gap-2 rounded-lg border border-garnet-200 bg-garnet-50 px-3 py-2.5">
+        <div className="mb-6 flex flex-wrap items-center gap-2 rounded-lg border border-garnet-200 bg-garnet-50 px-3 py-2.5">
           <Chip tone="garnet">Official LMS result</Chip>
           {course.lmsStatus ? (
             <span className="text-xs text-ink-soft">
@@ -117,121 +123,110 @@ export default async function CoursePage({
       <div className="space-y-6">
         {isLms ? (
           <Card>
-            <CardHeader title="Result breakdown" hint="synced from the UET OBE portal" />
-            <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <ResultStat label="Grade" value={course.lmsGrade ?? "—"} accent />
-              <ResultStat label="Grade points" value={course.lmsGradePoints?.toFixed(2) ?? "—"} />
-              <ResultStat label="Credit hours" value={String(course.creditHours)} />
-              <ResultStat
-                label="Marks"
-                value={course.lmsPercent != null ? `${course.lmsPercent}%` : "—"}
-              />
+            <CardHeader title="How this counts" hint="synced from the UET OBE portal" />
+            <CardBody className="text-xs leading-relaxed text-ink-soft">
+              Shown exactly as awarded — UET grades relatively, so marks map to the letter
+              the university assigned. This course contributes{" "}
+              <span className="stat-figure font-semibold text-ink">{qualityPoints}</span>{" "}
+              quality points to your CGPA (grade points {gp != null ? gp.toFixed(2) : "—"} ×{" "}
+              {course.creditHours} credit hours).
             </CardBody>
-            <div className="border-t border-line px-5 py-3 text-xs text-ink-faint">
-              Shown exactly as awarded (UET grades relatively). Quality points:{" "}
-              <span className="stat-figure text-ink-soft">
-                {course.lmsGradePoints != null
-                  ? (course.lmsGradePoints * course.creditHours).toFixed(1)
-                  : "—"}
-              </span>{" "}
-              — grade points × credit hours.
-            </div>
           </Card>
         ) : (
           <>
-        <Card>
-          <CardHeader title="Assessments" hint="marks & weights" />
-          <CardBody className="p-0">
-            {course.assessments.length === 0 ? (
-              <EmptyState
-                className="m-5"
-                title="No assessments yet"
-                hint="Add quizzes, assignments and exams below — GPA updates instantly."
+            <Card>
+              <CardHeader title="Assessments" hint="marks & weights" />
+              <CardBody className="p-0">
+                {course.assessments.length === 0 ? (
+                  <EmptyState
+                    className="m-5"
+                    title="No assessments yet"
+                    hint="Add quizzes, assignments and exams below — GPA updates instantly."
+                  />
+                ) : (
+                  <Table>
+                    <THead>
+                      <Th className="w-10 pr-0">#</Th>
+                      <Th>Title</Th>
+                      <Th>Type</Th>
+                      <Th>Marks</Th>
+                      <Th>Weight</Th>
+                      <Th className="w-12" />
+                    </THead>
+                    <tbody>
+                      {course.assessments.map((a, i) => (
+                        <Tr key={a.id}>
+                          <RowNum n={i + 1} />
+                          <Td className="font-medium text-ink">{a.title}</Td>
+                          <Td>
+                            <Chip>{a.type.toLowerCase()}</Chip>
+                          </Td>
+                          <Td className="stat-figure text-ink-soft">
+                            {a.obtained != null ? a.obtained : "·"} / {a.total}
+                          </Td>
+                          <Td className="stat-figure text-ink-soft">
+                            {a.weight != null ? `${a.weight}%` : "—"}
+                          </Td>
+                          <Td>
+                            <form action={deleteAssessment.bind(null, a.id)}>
+                              <button
+                                type="submit"
+                                aria-label={`Delete ${a.title}`}
+                                className="rounded-md p-1 text-ink-faint hover:bg-fail-soft hover:text-fail"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </form>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                )}
+
+                <form
+                  action={createAssessment.bind(null, course.id)}
+                  className="flex flex-wrap items-end gap-3 border-t border-line bg-canvas/40 px-5 py-4"
+                >
+                  <Field label="Title" className="min-w-40 flex-1">
+                    <Input name="title" required placeholder="Quiz 1" />
+                  </Field>
+                  <Field label="Type" className="w-32">
+                    <Select name="type" defaultValue="QUIZ">
+                      {TYPES.map((t) => (
+                        <option key={t} value={t}>
+                          {t.toLowerCase()}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <Field label="Obtained" className="w-24">
+                    <Input name="obtained" type="number" step="0.01" min="0" placeholder="—" />
+                  </Field>
+                  <Field label="Total" className="w-24">
+                    <Input name="total" type="number" step="0.01" min="0.01" required defaultValue="10" />
+                  </Field>
+                  <Field label="Weight %" className="w-24">
+                    <Input name="weight" type="number" step="0.5" min="0" max="100" placeholder="—" />
+                  </Field>
+                  <Button type="submit">Add</Button>
+                </form>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader
+                title="Grading scheme"
+                hint={
+                  course.gradeScheme
+                    ? "custom scheme for this course"
+                    : "using your default scheme — saving here creates a course-specific one"
+                }
               />
-            ) : (
-              <Table>
-                <THead>
-                  <Th className="w-10 pr-0">#</Th>
-                  <Th>Title</Th>
-                  <Th>Type</Th>
-                  <Th>Marks</Th>
-                  <Th>Weight</Th>
-                  <Th className="w-12" />
-                </THead>
-                <tbody>
-                  {course.assessments.map((a, i) => (
-                    <Tr key={a.id}>
-                      <RowNum n={i + 1} />
-                      <Td className="font-medium text-ink">{a.title}</Td>
-                      <Td>
-                        <Chip>{a.type.toLowerCase()}</Chip>
-                      </Td>
-                      <Td className="stat-figure text-ink-soft">
-                        {a.obtained != null ? a.obtained : "·"} / {a.total}
-                      </Td>
-                      <Td className="stat-figure text-ink-soft">
-                        {a.weight != null ? `${a.weight}%` : "—"}
-                      </Td>
-                      <Td>
-                        <form action={deleteAssessment.bind(null, a.id)}>
-                          <button
-                            type="submit"
-                            aria-label={`Delete ${a.title}`}
-                            className="rounded-md p-1 text-ink-faint hover:bg-fail-soft hover:text-fail"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </form>
-                      </Td>
-                    </Tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-
-            <form
-              action={createAssessment.bind(null, course.id)}
-              className="flex flex-wrap items-end gap-3 border-t border-line bg-canvas/40 px-5 py-4"
-            >
-              <Field label="Title" className="min-w-40 flex-1">
-                <Input name="title" required placeholder="Quiz 1" />
-              </Field>
-              <Field label="Type" className="w-32">
-                <Select name="type" defaultValue="QUIZ">
-                  {TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t.toLowerCase()}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Obtained" className="w-24">
-                <Input name="obtained" type="number" step="0.01" min="0" placeholder="—" />
-              </Field>
-              <Field label="Total" className="w-24">
-                <Input name="total" type="number" step="0.01" min="0.01" required defaultValue="10" />
-              </Field>
-              <Field label="Weight %" className="w-24">
-                <Input name="weight" type="number" step="0.5" min="0" max="100" placeholder="—" />
-              </Field>
-              <Button type="submit">Add</Button>
-            </form>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="Grading scheme"
-            hint={
-              course.gradeScheme
-                ? "custom scheme for this course"
-                : "using your default scheme — saving here creates a course-specific one"
-            }
-          />
-          <CardBody>
-            <SchemeEditor courseId={course.id} initial={scheme} />
-          </CardBody>
-        </Card>
+              <CardBody>
+                <SchemeEditor courseId={course.id} initial={scheme} />
+              </CardBody>
+            </Card>
           </>
         )}
       </div>
@@ -239,27 +234,20 @@ export default async function CoursePage({
   );
 }
 
-function ResultStat({
+function Stat({
   label,
   value,
-  accent,
+  className,
 }: {
   label: string;
   value: string;
-  accent?: boolean;
+  className?: string;
 }) {
   return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
+    <div className="bg-paper px-5 py-4">
+      <p className={cn("stat-figure text-2xl font-bold", className ?? "text-ink")}>{value}</p>
+      <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
         {label}
-      </p>
-      <p
-        className={
-          "stat-figure mt-1 text-2xl font-bold " +
-          (accent ? "text-garnet-600" : "text-ink")
-        }
-      >
-        {value}
       </p>
     </div>
   );

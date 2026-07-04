@@ -1,4 +1,4 @@
-import { Info } from "lucide-react";
+import { Info, GraduationCap, HardDrive, Palette, SlidersHorizontal } from "lucide-react";
 import { requireUser, googleAuthEnabled } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getUserDefaultScheme } from "@/lib/queries";
@@ -13,6 +13,34 @@ import { ConnectDriveButton } from "@/components/connect-drive-button";
 import { LmsSync } from "@/components/lms-sync";
 import { BookmarkletCard } from "@/components/bookmarklet-card";
 import { ThemePicker, ModeToggle } from "@/components/theme-switcher";
+import { cn } from "@/lib/utils";
+
+type ConnState = "on" | "warn" | "off";
+
+function StatusPill({ label, state, text }: { label: string; state: ConnState; text: string }) {
+  const dot =
+    state === "on" ? "bg-pass" : state === "warn" ? "bg-warn" : "bg-line-strong";
+  return (
+    <div className="flex items-center gap-2">
+      <span className={cn("size-2 shrink-0 rounded-full", dot)} />
+      <div className="leading-tight">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-faint">{label}</p>
+        <p className="text-xs font-medium text-ink">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function IconTitle({ icon: Icon, children }: { icon: typeof Info; children: React.ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className="grid size-6 place-items-center rounded-md bg-garnet-50 text-garnet-600">
+        <Icon size={14} />
+      </span>
+      {children}
+    </span>
+  );
+}
 
 export default async function SettingsPage() {
   const { id: userId } = await requireUser();
@@ -24,21 +52,55 @@ export default async function SettingsPage() {
     getLmsStatus(),
   ]);
 
+  const name = user?.name ?? user?.email ?? "Student";
+  const initials = name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  const lmsState: ConnState = lmsStatus === "valid" ? "on" : lmsStatus === "expired" ? "warn" : "off";
+  const lmsText = lmsStatus === "valid" ? "Connected" : lmsStatus === "expired" ? "Expired" : "Not linked";
+  const driveState: ConnState = drive.hasScope ? "on" : "off";
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header className="mb-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
+      <header className="mb-2">
+        <p className="eyebrow">Connections &amp; defaults</p>
+        <h1 className="font-display text-[2rem] font-bold leading-tight tracking-tight text-ink">
           Settings
         </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          Connections and defaults for your account.
+          Manage how Cortex connects to your UET accounts and how it looks.
         </p>
       </header>
+
+      {/* Account + connection overview */}
+      <Card>
+        <CardBody className="flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brass-500 font-display text-sm font-bold text-[#1c1917]">
+              {initials}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-ink">{name}</p>
+              {user?.email ? (
+                <p className="truncate text-xs text-ink-faint">{user.email}</p>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex items-center gap-6 sm:ml-auto">
+            <StatusPill label="LMS" state={lmsState} text={lmsText} />
+            <StatusPill label="Drive" state={driveState} text={drive.hasScope ? "Connected" : "Not linked"} />
+          </div>
+        </CardBody>
+      </Card>
 
       {/* ----- UET LMS ----- */}
       <Card>
         <CardHeader
-          title="UET LMS"
+          title={<IconTitle icon={GraduationCap}>UET LMS</IconTitle>}
           hint="official results from the OBE portal"
           action={
             lmsStatus === "valid" ? (
@@ -82,7 +144,7 @@ export default async function SettingsPage() {
       {/* ----- Google Drive ----- */}
       <Card>
         <CardHeader
-          title="Google Drive"
+          title={<IconTitle icon={HardDrive}>Google Drive</IconTitle>}
           hint="read-only access to your uni folder"
           action={
             drive.hasScope ? <Chip tone="pass">connected</Chip> : <Chip>not connected</Chip>
@@ -116,7 +178,7 @@ export default async function SettingsPage() {
       {/* ----- Appearance ----- */}
       <Card>
         <CardHeader
-          title="Appearance"
+          title={<IconTitle icon={Palette}>Appearance</IconTitle>}
           hint="accent theme and colour mode for the whole app"
           action={<ModeToggle />}
         />
@@ -128,7 +190,7 @@ export default async function SettingsPage() {
       {/* ----- Default grading scheme ----- */}
       <Card>
         <CardHeader
-          title="Default grading scheme"
+          title={<IconTitle icon={SlidersHorizontal}>Default grading scheme</IconTitle>}
           hint="applies to every course without its own scheme"
         />
         <CardBody>
