@@ -134,20 +134,18 @@ const wkNum = (v: unknown) => {
 };
 
 /**
- * Best-effort: for the subjects behind a student's results, pull the
- * instructor + course outline from the subject record. Field names are
- * discovered at runtime via fields_get and matched by name, so nothing is
- * ever guessed wrong. On UET's LMS this resolves to supervisor_faculty_id
- * (instructor) and the week-by-week content_ids/topics (outline), with
- * course_description as a fallback. Teacher and outline are isolated so a
- * failure in one never loses the other.
+ * Best-effort: for the subjects behind a student's results, build a course
+ * outline from the subject record. Field names are discovered at runtime via
+ * fields_get and matched by name, so nothing is ever guessed wrong. On UET's
+ * LMS this reads the week-by-week content_ids/topics, falling back to
+ * course_description. Returns subjectId → outline text (or null).
  */
-async function enrichSubjects(
+async function fetchOutlines(
   cookie: string,
   subjectIds: number[]
-): Promise<Map<number, { teacher: string | null; outline: string | null }>> {
-  const out = new Map<number, { teacher: string | null; outline: string | null }>();
-  for (const id of subjectIds) out.set(id, { teacher: null, outline: null });
+): Promise<Map<number, string | null>> {
+  const out = new Map<number, string | null>();
+  for (const id of subjectIds) out.set(id, null);
   if (subjectIds.length === 0) return out;
 
   let model: string | undefined;
@@ -173,25 +171,6 @@ async function enrichSubjects(
     return out;
   }
   const names = Object.keys(fields);
-
-  // Instructor — its own try so an outline failure can't drop it.
-  try {
-    const tf = names.find(
-      (n) => fields[n]?.type === "many2one" && /teacher|faculty|instructor|incharge/i.test(n)
-    );
-    if (tf) {
-      const subs = await callKw<Record<string, unknown>[]>(cookie, model, "read", [subjectIds, ["id", tf]]);
-      for (const s of subs) {
-        const id = asNum(s.id);
-        if (id == null) continue;
-        const v = s[tf];
-        const t = Array.isArray(v) ? asStr((v as [number, string])[1]) : asStr(v);
-        if (t) out.get(id)!.teacher = t;
-      }
-    }
-  } catch {
-    /* optional */
-  }
 
   // Outline — prefer week-by-week content topics, fall back to a description.
   try {
@@ -245,7 +224,7 @@ async function enrichSubjects(
           const v = s[descField];
           if (typeof v === "string" && v.trim()) outline = htmlToText(v) || null;
         }
-        if (outline) out.get(id)!.outline = outline;
+        if (outline) out.set(id, outline);
       }
     }
   } catch {
@@ -296,6 +275,7 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
     [
       "id", "subject_id", "subject_name_for_grade_book", "semester_name",
       "rel_grade", "grade", "gp_rel", "ch_rel", "weightage", "result_uo_status_rel",
+      "teacher_name",
     ],
   ], { limit: 200 });
 
@@ -305,7 +285,9 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
   const uniqueSubjectIds = Array.from(
     new Set(rows.map(subjectIdOf).filter((n): n is number => n != null))
   );
-  const meta = await enrichSubjects(cookie, uniqueSubjectIds);
+  // Teacher comes straight off the result ("Teacher name" in the grade book);
+  // the subject record only holds the outline.
+  const outlines = await fetchOutlines(cookie, uniqueSubjectIds);
 
   const results: LmsResult[] = rows.map((r, i) => {
     const rawName = asStr(r.subject_name_for_grade_book) ?? (Array.isArray(r.subject_id) ? String((r.subject_id as [number, string])[1]) : "Course");
@@ -313,7 +295,6 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
     const ch = asNum(r.ch_rel) ?? 0;
     const qualityPoints = asNum(r.gp_rel); // gp_rel = gradePoints × creditHours
     const gradePoints = qualityPoints != null && ch > 0 ? Math.round((qualityPoints / ch) * 100) / 100 : null;
-    const sm = meta.get(subjectIdOf(r) ?? -1);
     return {
       lmsCourseId: String(r.id),
       semesterName: asStr(r.semester_name) ?? "Unknown semester",
@@ -325,8 +306,8 @@ export async function fetchSnapshot(): Promise<LmsSnapshot> {
       gradePoints,
       status: asStr(r.result_uo_status_rel),
       order: i,
-      teacher: sm?.teacher ?? null,
-      outline: sm?.outline ?? null,
+      teacher: asStr(r.teacher_name),
+      outline: outlines.get(subjectIdOf(r) ?? -1) ?? null,
     };
   });
 

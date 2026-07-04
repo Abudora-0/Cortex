@@ -141,13 +141,15 @@ export async function applyLmsSnapshot(
         where: { lmsCourseId: r.lmsCourseId, semester: { userId } },
       });
       if (existing) {
-        // Never clobber anything the student edited by hand — only fill blanks.
+        // The instructor is authoritative LMS data, so always keep it in sync
+        // (this self-heals older syncs). The outline only fills a blank so a
+        // hand-edited outline is never clobbered.
         await prisma.course.update({
           where: { id: existing.id },
           data: {
             ...data,
             ...(r.outline && !existing.outline ? { outline: r.outline } : {}),
-            ...(teacherId && !existing.teacherId ? { teacherId } : {}),
+            ...(teacherId ? { teacherId } : {}),
           },
         });
       } else {
