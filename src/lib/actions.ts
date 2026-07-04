@@ -195,6 +195,20 @@ export async function saveGradingPolicy(courseId: string, policyJson: string) {
   revalidatePath(`/courses/${courseId}`);
 }
 
+export async function saveAttendance(courseId: string, held: number, attended: number) {
+  const userId = await requireUserId();
+  await assertCourseOwned(courseId, userId);
+  const h = Math.max(0, Math.min(10000, Math.floor(Number(held) || 0)));
+  const a = Math.max(0, Math.min(h, Math.floor(Number(attended) || 0)));
+  await prisma.attendanceRecord.upsert({
+    where: { courseId },
+    update: { held: h, attended: a },
+    create: { courseId, held: h, attended: a },
+  });
+  revalidatePath(`/courses/${courseId}`);
+  revalidatePath("/");
+}
+
 // ---------------------------------------------------------------------------
 // Grade schemes
 // ---------------------------------------------------------------------------

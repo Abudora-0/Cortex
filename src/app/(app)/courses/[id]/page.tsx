@@ -22,6 +22,7 @@ import { SchemeEditor } from "@/components/scheme-editor";
 import { GradingPolicyEditor, type PolicyRow } from "@/components/grading-policy-editor";
 import { CourseOutlineEditor } from "@/components/course-outline-editor";
 import { CourseInstructor } from "@/components/course-instructor";
+import { AttendanceTracker } from "@/components/attendance-tracker";
 import { cn } from "@/lib/utils";
 
 const TYPES = ["QUIZ", "ASSIGNMENT", "MID", "FINAL", "LAB", "PROJECT", "OTHER"];
@@ -56,6 +57,7 @@ export default async function CoursePage({
       assessments: { orderBy: { createdAt: "asc" } },
       gradeScheme: true,
       semester: true,
+      attendance: true,
     },
   });
   if (!course) notFound();
@@ -158,6 +160,17 @@ export default async function CoursePage({
               courseCode={course.code}
               teachers={teachers}
               currentId={course.teacherId}
+            />
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Attendance" hint="stay above the 75% debar line" />
+          <CardBody>
+            <AttendanceTracker
+              courseId={course.id}
+              initialHeld={course.attendance?.held ?? 0}
+              initialAttended={course.attendance?.attended ?? 0}
             />
           </CardBody>
         </Card>

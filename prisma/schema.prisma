@@ -122,7 +122,7 @@ model Course {
   teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   assessments Assessment[]
-  attendance  AttendanceRecord[]
+  attendance  AttendanceRecord?
   gradeScheme GradeScheme?
   notes       Note[]
   tasks       Task[]
