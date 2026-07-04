@@ -8,6 +8,31 @@ export interface SyncSummary {
   courses: number;
 }
 
+const HONORIFICS = /^((?:(?:prof|dr|engr|mr|mrs|ms|miss|sir|madam)\.?\s+)+)/i;
+
+// LMS instructor labels arrive like "Prof Dr Anwar Latif (Department of Physics)".
+// Split the honorific title and trailing department out of the plain name.
+function parseTeacherName(raw: string): {
+  name: string;
+  title: string | null;
+  department: string | null;
+} {
+  let s = raw.trim();
+  let department: string | null = null;
+  const paren = s.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (paren) {
+    s = paren[1].trim();
+    department = paren[2].trim().replace(/^department of\s+/i, "").trim() || null;
+  }
+  let title: string | null = null;
+  const t = s.match(HONORIFICS);
+  if (t && s.length > t[1].length) {
+    title = t[1].trim().replace(/\s+/g, " ");
+    s = s.slice(t[1].length).trim();
+  }
+  return { name: s || raw.trim(), title, department };
+}
+
 // Shape a bookmarklet is allowed to POST to /api/lms/ingest. Validated so the
 // server never trusts arbitrary client JSON.
 const num = z.number().finite();
@@ -71,14 +96,16 @@ export async function applyLmsSnapshot(
   let courseCount = 0;
   // Resolve LMS-named instructors to Teacher rows once per sync.
   const teacherCache = new Map<string, string>();
-  const resolveTeacher = async (name: string | null | undefined): Promise<string | null> => {
-    const key = name?.trim();
-    if (!key) return null;
-    const cached = teacherCache.get(key.toLowerCase());
+  const resolveTeacher = async (raw: string | null | undefined): Promise<string | null> => {
+    const trimmed = raw?.trim();
+    if (!trimmed) return null;
+    const { name, title, department } = parseTeacherName(trimmed);
+    const cacheKey = name.toLowerCase();
+    const cached = teacherCache.get(cacheKey);
     if (cached) return cached;
-    const found = await prisma.teacher.findFirst({ where: { userId, name: key }, select: { id: true } });
-    const id = found?.id ?? (await prisma.teacher.create({ data: { userId, name: key } })).id;
-    teacherCache.set(key.toLowerCase(), id);
+    const found = await prisma.teacher.findFirst({ where: { userId, name }, select: { id: true } });
+    const id = found?.id ?? (await prisma.teacher.create({ data: { userId, name, title, department } })).id;
+    teacherCache.set(cacheKey, id);
     return id;
   };
 
