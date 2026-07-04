@@ -36,6 +36,10 @@ interface HypoCourse {
 const gpOf = (letter: string) =>
   UET_LETTER_GRADES.find((g) => g.letter === letter)?.gradePoints ?? 0;
 
+// colour a grade chip by tier: green ≥3.0, amber ≥2.0, red below
+const tierTone = (gp: number): "pass" | "warn" | "fail" =>
+  gp >= 3 ? "pass" : gp >= 2 ? "warn" : "fail";
+
 let hid = 0;
 const newHypo = (grade = "A"): HypoCourse => ({ id: `h${hid++}`, credits: "3", grade });
 
@@ -111,9 +115,11 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
                             <span className="ml-2 text-[11px] text-ink-faint">{c.creditHours} cr</span>
                           </p>
                           <div className="flex shrink-0 items-center gap-2">
-                            <Chip tone="garnet">
-                              {c.fixedLetter ?? "—"}
-                              {c.fixedGradePoints != null ? ` · ${c.fixedGradePoints.toFixed(2)}` : ""}
+                            <Chip tone={c.fixedGradePoints != null ? tierTone(c.fixedGradePoints) : "neutral"}>
+                              <span>{c.fixedLetter ?? "—"}</span>
+                              {c.fixedGradePoints != null ? (
+                                <span className="font-normal opacity-70">{c.fixedGradePoints.toFixed(2)}</span>
+                              ) : null}
                             </Chip>
                             <Lock size={13} className="text-ink-faint" />
                           </div>
@@ -132,13 +138,24 @@ export function WhatIfLab({ semesters }: { semesters: WhatIfSemester[] }) {
                           </p>
                           <div className="flex shrink-0 items-center gap-2">
                             {val != null ? (
-                              <Chip tone={overridden ? "brass" : "neutral"}>
-                                {letterFor(val, c.scheme)} · {gradePointsFor(val, c.scheme).toFixed(2)}
+                              <Chip
+                                tone={tierTone(gradePointsFor(val, c.scheme))}
+                                className={overridden ? "ring-1 ring-brass-400" : ""}
+                              >
+                                <span>{letterFor(val, c.scheme)}</span>
+                                <span className="font-normal opacity-70">
+                                  {gradePointsFor(val, c.scheme).toFixed(2)}
+                                </span>
                               </Chip>
                             ) : (
                               <Chip>ungraded</Chip>
                             )}
-                            <span className="stat-figure w-14 text-right text-sm font-bold text-ink">
+                            <span
+                              className={cn(
+                                "stat-figure w-14 text-right text-sm font-bold",
+                                overridden ? "text-brass-600" : "text-ink"
+                              )}
+                            >
                               {val != null ? `${Math.round(val)}%` : "—"}
                             </span>
                           </div>

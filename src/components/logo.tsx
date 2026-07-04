@@ -50,18 +50,29 @@ export function LogoMark({
 /** Tile + wordmark lockup. */
 export function Logo({
   showWord = true,
+  size = "md",
   className,
 }: {
   showWord?: boolean;
+  size?: "md" | "lg";
   className?: string;
 }) {
+  const s =
+    size === "lg"
+      ? { tile: "size-11 rounded-xl", mark: 26, word: "text-2xl", gap: "gap-3" }
+      : { tile: "size-8 rounded-[9px]", mark: 19, word: "text-lg", gap: "gap-2.5" };
   return (
-    <span className={cn("flex items-center gap-2.5", className)}>
-      <span className="grid size-8 shrink-0 place-items-center rounded-[9px] bg-garnet-600 text-white shadow-[0_2px_8px_-2px_rgba(var(--accent-tint),0.5)]">
-        <LogoMark size={19} />
+    <span className={cn("flex items-center", s.gap, className)}>
+      <span
+        className={cn(
+          "grid shrink-0 place-items-center bg-garnet-600 text-white shadow-[0_2px_8px_-2px_rgba(var(--accent-tint),0.5)]",
+          s.tile
+        )}
+      >
+        <LogoMark size={s.mark} />
       </span>
       {showWord ? (
-        <span className="font-display text-lg font-bold tracking-tight">Cortex</span>
+        <span className={cn("font-display font-bold tracking-tight", s.word)}>Cortex</span>
       ) : null}
     </span>
   );

@@ -7,14 +7,16 @@ export default async function CalculatorPage() {
   const { id: userId } = await requireUser();
   const { semesters, cgpa, totalCredits } = await getAcademics(userId);
 
-  const myCourses: MyCourse[] = semesters
-    .flatMap((s) => s.courses)
-    .filter((c) => c.letter != null && c.creditHours > 0)
-    .map((c) => ({
-      name: c.code || c.title,
-      credits: c.creditHours,
-      grade: c.letter as string,
-    }));
+  const myCourses: MyCourse[] = semesters.flatMap((s) =>
+    s.courses
+      .filter((c) => c.letter != null && c.creditHours > 0)
+      .map((c) => ({
+        name: c.code || c.title,
+        credits: c.creditHours,
+        grade: c.letter as string,
+        semester: s.name,
+      }))
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">

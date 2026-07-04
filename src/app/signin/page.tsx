@@ -55,7 +55,7 @@ export default async function SignInPage() {
         />
 
         <div className="relative z-10 flex h-full flex-col">
-          <Logo className="text-sidebar-fg" />
+          <Logo size="lg" className="text-sidebar-fg" />
 
           <div className="mt-auto">
             <h1 className="max-w-md font-display text-[2.6rem] font-bold leading-[1.05] tracking-tight">
@@ -94,9 +94,7 @@ export default async function SignInPage() {
         <div className="w-full max-w-sm rise">
           {/* compact brand for mobile */}
           <div className="mb-8 lg:hidden">
-            <span className="mb-4 grid size-12 place-items-center rounded-xl bg-garnet-600 text-white shadow-[0_10px_30px_-8px_rgb(var(--accent-tint)/0.6)]">
-              <LogoMark size={26} />
-            </span>
+            <Logo size="lg" />
           </div>
 
           <h2 className="font-display text-2xl font-bold tracking-tight text-ink">

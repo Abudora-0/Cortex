@@ -161,9 +161,9 @@ export default async function SemestersPage() {
                             </div>
 
                             {/* grade */}
-                            <div className="w-16 shrink-0 text-right">
+                            <div className="flex w-16 shrink-0 justify-end">
                               {c.letter ? (
-                                <Chip tone={ct.chip}>
+                                <Chip tone={ct.chip} className="min-w-[2.75rem] justify-center">
                                   {c.letter}
                                 </Chip>
                               ) : (

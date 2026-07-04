@@ -7,8 +7,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 
 const hasGoogle = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
-const devLoginEnabled =
-  process.env.AUTH_DEV_LOGIN === "true" || process.env.NODE_ENV === "development";
+// Dev-login is a local-development convenience only — never surfaced in prod.
+const devLoginEnabled = process.env.NODE_ENV === "development";
 
 const providers: NextAuthConfig["providers"] = [];
 

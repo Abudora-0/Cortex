@@ -95,11 +95,11 @@ export default async function SchedulePage() {
                   ))}
                 </Select>
               </Field>
-              <Field label="Start" className="w-28">
-                <Input name="start" type="time" defaultValue="08:00" required />
+              <Field label="Start" className="w-36">
+                <Input name="start" type="time" defaultValue="08:00" required className="tabular-nums" />
               </Field>
-              <Field label="End" className="w-28">
-                <Input name="end" type="time" defaultValue="09:00" required />
+              <Field label="End" className="w-36">
+                <Input name="end" type="time" defaultValue="09:00" required className="tabular-nums" />
               </Field>
               <Field label="Room" className="w-28">
                 <Input name="location" placeholder="LT-4" />
