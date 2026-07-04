@@ -21,6 +21,7 @@ import { Bar } from "@/components/ui/progress";
 import { SchemeEditor } from "@/components/scheme-editor";
 import { GradingPolicyEditor, type PolicyRow } from "@/components/grading-policy-editor";
 import { CourseOutlineEditor } from "@/components/course-outline-editor";
+import { CourseInstructor } from "@/components/course-instructor";
 import { cn } from "@/lib/utils";
 
 const TYPES = ["QUIZ", "ASSIGNMENT", "MID", "FINAL", "LAB", "PROJECT", "OTHER"];
@@ -58,6 +59,12 @@ export default async function CoursePage({
     },
   });
   if (!course) notFound();
+
+  const teachers = await prisma.teacher.findMany({
+    where: { userId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, title: true, email: true, office: true, officeHours: true },
+  });
 
   const scheme = course.gradeScheme
     ? parseScheme(course.gradeScheme.boundaries)
@@ -143,6 +150,18 @@ export default async function CoursePage({
       ) : null}
 
       <div className="space-y-6">
+        <Card>
+          <CardHeader title="Instructor" hint="link a teacher to reach them fast" />
+          <CardBody>
+            <CourseInstructor
+              courseId={course.id}
+              courseCode={course.code}
+              teachers={teachers}
+              currentId={course.teacherId}
+            />
+          </CardBody>
+        </Card>
+
         {isLms ? (
           <Card>
             <CardHeader title="How this counts" hint="synced from the UET OBE portal" />

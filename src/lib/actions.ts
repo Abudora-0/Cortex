@@ -326,6 +326,62 @@ export async function deleteAssignment(id: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Faculty
+// ---------------------------------------------------------------------------
+
+function teacherFields(formData: FormData) {
+  const name = z.string().min(1).max(120).parse(formData.get("name"));
+  const opt = (k: string, max: number) => {
+    const v = String(formData.get(k) ?? "").trim();
+    return v ? v.slice(0, max) : null;
+  };
+  let email = opt("email", 160);
+  if (email && !z.string().email().safeParse(email).success) email = null;
+  return {
+    name,
+    title: opt("title", 40),
+    email,
+    department: opt("department", 80),
+    office: opt("office", 60),
+    officeHours: opt("officeHours", 120),
+  };
+}
+
+export async function createTeacher(formData: FormData) {
+  const userId = await requireUserId();
+  await prisma.teacher.create({ data: { userId, ...teacherFields(formData) } });
+  revalidatePath("/faculty");
+}
+
+export async function updateTeacher(id: string, formData: FormData) {
+  const userId = await requireUserId();
+  const owned = await prisma.teacher.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!owned) return;
+  await prisma.teacher.update({ where: { id }, data: teacherFields(formData) });
+  revalidatePath("/faculty");
+}
+
+export async function deleteTeacher(id: string) {
+  const userId = await requireUserId();
+  await prisma.teacher.deleteMany({ where: { id, userId } });
+  revalidatePath("/faculty");
+  revalidatePath("/semesters");
+}
+
+export async function setCourseTeacher(courseId: string, teacherId: string | null) {
+  const userId = await requireUserId();
+  await assertCourseOwned(courseId, userId);
+  let tId = teacherId || null;
+  if (tId) {
+    const owned = await prisma.teacher.findFirst({ where: { id: tId, userId }, select: { id: true } });
+    if (!owned) tId = null;
+  }
+  await prisma.course.update({ where: { id: courseId }, data: { teacherId: tId } });
+  revalidatePath(`/courses/${courseId}`);
+  revalidatePath("/faculty");
+}
+
+// ---------------------------------------------------------------------------
 // Schedule events
 // ---------------------------------------------------------------------------
 

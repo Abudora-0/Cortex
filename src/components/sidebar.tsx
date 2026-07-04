@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ClipboardList,
   StickyNote,
+  Users,
   FolderOpen,
   Settings,
   PanelLeftClose,
@@ -29,6 +30,7 @@ const nav = [
   { href: "/schedule", label: "Schedule", icon: CalendarDays },
   { href: "/assignments", label: "Assignments", icon: ClipboardList },
   { href: "/notes", label: "Notes", icon: StickyNote },
+  { href: "/faculty", label: "Faculty", icon: Users },
   { href: "/drive", label: "Drive", icon: FolderOpen },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

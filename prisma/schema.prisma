@@ -25,6 +25,7 @@ model User {
   notes         Note[]
   tasks         Task[]
   assignments   Assignment[]
+  teachers      Teacher[]
   events        ScheduleEvent[]
   syncJobs      SyncJob[]
 
@@ -116,6 +117,9 @@ model Course {
   outline       String?
   // Official grading weightage, JSON: [{ label, weight }].
   gradingPolicy String?
+
+  teacherId String?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   assessments Assessment[]
   attendance  AttendanceRecord[]
@@ -230,6 +234,22 @@ model Assignment {
   link     String?
   // "MANUAL" | "CLASSROOM" | "EDUKO" — room for future integrations
   source   String    @default("MANUAL")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Teacher {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  title       String?
+  email       String?
+  department  String?
+  office      String?
+  officeHours String?
+  courses     Course[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
