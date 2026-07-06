@@ -15,6 +15,7 @@ University of Engineering & Technology (Lahore) students.
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma_7-2D3748?style=flat-square&logo=prisma&logoColor=white)
 ![Auth.js](https://img.shields.io/badge/Auth.js_v5-000000?style=flat-square)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
 </div>
 
