@@ -8,7 +8,7 @@ Marks & CGPA, a GPA what-if lab, your class timetable, assignments, attendance,
 faculty contacts, notes and Google Drive — one calm, fast workspace for
 University of Engineering & Technology (Lahore) students.
 
-[![Live](https://img.shields.io/badge/live-cortex--two--omega.vercel.app-9B2242?style=flat-square)](https://cortex-two-omega.vercel.app)
+[![Live](https://img.shields.io/badge/live-Cortex-9B2242?style=flat-square)](https://cortexlms.vercel.app/)
 &nbsp;
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
