@@ -88,19 +88,33 @@ export function Sidebar({
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
           aria-controls="cortex-mobile-sidebar"
-          className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-white/[0.07]"
+          className="relative grid size-9 shrink-0 place-items-center rounded-lg transition-colors duration-200 hover:bg-white/[0.07]"
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          <Menu
+            size={20}
+            className={cn(
+              "absolute transition-all duration-300 ease-[var(--ease-out-soft)]",
+              mobileOpen ? "rotate-90 scale-75 opacity-0" : "rotate-0 scale-100 opacity-100"
+            )}
+          />
+          <X
+            size={20}
+            className={cn(
+              "absolute transition-all duration-300 ease-[var(--ease-out-soft)]",
+              mobileOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-75 opacity-0"
+            )}
+          />
         </button>
       </div>
 
-      {mobileOpen && (
-        <div
-          aria-hidden="true"
-          onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-40 bg-ink/40 lg:hidden"
-        />
-      )}
+      <div
+        aria-hidden="true"
+        onClick={() => setMobileOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-ink/40 transition-opacity duration-300 ease-[var(--ease-out-soft)] lg:hidden",
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+      />
 
       <aside
         id="cortex-mobile-sidebar"
