@@ -77,16 +77,22 @@ export function Sidebar({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setMobileOpen((v) => !v)}
-        aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        aria-expanded={mobileOpen}
-        aria-controls="cortex-mobile-sidebar"
-        className="fixed left-4 top-4 z-[60] grid size-10 place-items-center rounded-lg bg-sidebar text-sidebar-fg shadow-raise lg:hidden"
-      >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* Mobile top bar - logo left, hamburger right; drawer still opens from the left */}
+      <div className="fixed inset-x-0 top-0 z-[60] flex h-14 items-center justify-between border-b border-white/10 bg-sidebar px-4 text-sidebar-fg lg:hidden">
+        <Link href="/" onClick={() => setMobileOpen(false)} aria-label="Cortex home">
+          <Logo />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          aria-controls="cortex-mobile-sidebar"
+          className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-white/[0.07]"
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
 
       {mobileOpen && (
         <div
@@ -107,10 +113,11 @@ export function Sidebar({
           mobileOpen ? "max-lg:translate-x-0" : "max-lg:-translate-x-full"
         )}
       >
+        {/* Logo header - desktop only; mobile shows the logo in the top bar instead */}
         <Link
           href="/"
           onClick={() => setMobileOpen(false)}
-          className="flex h-16 items-center gap-2.5 border-b border-white/10 px-3.5 lg:px-4"
+          className="hidden h-16 items-center gap-2.5 border-b border-white/10 px-3.5 lg:flex lg:px-4"
           aria-label="Cortex home"
         >
           <span className={cn("hidden", collapsed && "lg:flex")}>
