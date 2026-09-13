@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { auth, drive as driveApi } from "@googleapis/drive";
 import { prisma } from "@/lib/db";
 
 export const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
@@ -32,7 +32,7 @@ async function getDriveClient(userId: string) {
   const account = await driveAccount(userId);
   if (!account) return null;
 
-  const oauth2 = new google.auth.OAuth2(
+  const oauth2 = new auth.OAuth2(
     process.env.AUTH_GOOGLE_ID,
     process.env.AUTH_GOOGLE_SECRET
   );
@@ -58,7 +58,7 @@ async function getDriveClient(userId: string) {
     }
   });
 
-  return google.drive({ version: "v3", auth: oauth2 });
+  return driveApi({ version: "v3", auth: oauth2 });
 }
 
 export async function listFolder(

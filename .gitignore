@@ -38,3 +38,6 @@ npm-debug.log*
 # LMS assisted-sync session (contains a live login session — never commit)
 /.lms-session.json
 /.recon/
+
+# local Claude Code tooling config
+/.claude/
